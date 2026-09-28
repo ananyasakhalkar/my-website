@@ -473,6 +473,7 @@ h3 {
   line-height: 1.35;
   grid-column: 2;
 }
+.cite__title--plain { font-family: var(--sans); font-size: 1rem; color: var(--ink-2); }
 .cite__tags { grid-column: 3; grid-row: 1; display: flex; gap: var(--s2); flex-wrap: wrap; justify-content: flex-end; align-items: start; }
 .cite__meta { grid-column: 2 / span 2; color: var(--ink-2); font-size: .98rem; }
 .cite__meta em { font-style: italic; }
