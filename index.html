@@ -162,6 +162,8 @@
   .phil-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(245,240,232,0.5); flex-shrink: 0; }
   .phil-text { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.7); }
 
+  #research { padding: 7rem 4rem; background: #ede8dc; }
+
   /* ── SKILLS ── */
   #skills { padding: 7rem 4rem; max-width: 1300px; margin: 0 auto; }
   .skills-top { margin-bottom: 4rem; }
@@ -352,7 +354,7 @@
     .skills-grid, .ach-grid { grid-template-columns: 1fr; }
     .projects-grid { grid-template-columns: 1fr; }
     .project-card.featured { grid-column: auto; grid-template-columns: 1fr; }
-    #about, #skills, #experience, #projects, #oss, #domains, #achievements, #publications, #contact { padding: 4rem 1.5rem; }
+    #about, #research, #skills, #experience, #projects, #oss, #domains, #achievements, #publications, #contact { padding: 4rem 1.5rem; }
     .oss-grid, .oss-contrib-grid, .domain-deep-grid, .domain-mini-row { grid-template-columns: 1fr; }
     .pub-card { grid-template-columns: 1fr; text-align: left; }
     .pub-icon, .pub-link { justify-self: start; }
@@ -374,6 +376,7 @@
     <a href="#skills">Skills</a>
     <a href="#experience">Experience</a>
     <a href="#projects">Projects</a>
+    <a href="#research">Research</a>
     <a href="#oss">Open Source</a>
     <a href="#domains">Domains</a>
     <a href="#achievements">Awards</a>
@@ -413,7 +416,7 @@
     <div class="hero-stat-grid">
       <div class="stat-card accent"><div class="stat-num">3</div><div class="stat-label">Production Internships</div></div>
       <div class="stat-card"><div class="stat-num">300+</div><div class="stat-label">LeetCode Problems</div></div>
-      <div class="stat-card"><div class="stat-num">8.92</div><div class="stat-label">CGPA / 10.0</div></div>
+      <div class="stat-card"><div class="stat-num">8.94</div><div class="stat-label">CGPA / 10.0</div></div>
       <div class="stat-card accent"><div class="stat-num">#1</div><div class="stat-label">Digithon 2.0 Winner</div></div>
     </div>
     <div class="hero-ticker">
@@ -492,6 +495,32 @@
   </div>
 </section>
 
+<!-- RESEARCH & EDUCATION -->
+<section id="research">
+  <div class="domains-inner">
+    <div class="section-label reveal">Research & Education</div>
+    <h2 class="domains-heading reveal">What I'm <em>curious</em> about</h2>
+    <p class="domains-sub reveal">Clinical and mental-health NLP; robustness and cross-site/domain generalisation of language models; clinical risk detection; evaluation and reliability of LLMs in high-stakes settings; parameter-efficient fine-tuning and adaptation of LLMs; healthcare machine learning.</p>
+    <div class="domain-mini-row reveal">
+      <div class="domain-mini-card">
+        <div class="dmc-label">Education · 2022 – 2026</div>
+        <div class="dmc-title">B.Tech Computer Science, SRM IST Chennai</div>
+        <div class="dmc-desc">CGPA 8.94 / 10. Completed 2026.</div>
+      </div>
+      <div class="domain-mini-card">
+        <div class="dmc-label">Relevant Coursework</div>
+        <div class="dmc-title">AI, ML & NLP</div>
+        <div class="dmc-desc">Artificial Intelligence and Machine Learning, Natural Language Processing, Data Mining and Analytics, Data Science, AIoT, Database Management Systems.</div>
+      </div>
+      <div class="domain-mini-card">
+        <div class="dmc-label">Research Practice</div>
+        <div class="dmc-title">Reproducible Experimentation</div>
+        <div class="dmc-desc">Model evaluation, interpretability, feature engineering, and reproducible Hugging Face workflows from dataset curation to evaluation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- SKILLS -->
 <section id="skills">
   <div class="skills-top reveal">
@@ -525,6 +554,10 @@
         <span class="skill-chip">MySQL</span><span class="skill-chip">Git · Linux</span><span class="skill-chip">OpenCV</span>
         <span class="skill-chip">Google Earth Engine</span><span class="skill-chip">Sentinel-2</span>
         <span class="skill-chip">Microservices</span><span class="skill-chip">System Design</span><span class="skill-chip">CI/CD</span>
+        <span class="skill-chip">TensorFlow / Keras</span><span class="skill-chip">Random Forest</span>
+        <span class="skill-chip">Hugging Face</span><span class="skill-chip">PEFT / LoRA</span>
+        <span class="skill-chip">Llama 3.1</span><span class="skill-chip">Qwen2.5</span>
+        <span class="skill-chip">DistilBERT</span><span class="skill-chip">RAG</span>
       </div>
     </div>
   </div>
@@ -558,6 +591,7 @@
           <li>Architected and shipped a production FastAPI inference service achieving under 200ms response time under strict SLA requirements on a live government platform serving real patients.</li>
           <li>Designed feature engineering and preprocessing workflows for sensitive clinical data with modular, tested, iterable code — applied model interpretability to surface feature impact and build physician trust.</li>
           <li>Owned the full engineering lifecycle — system design to deployment — in a zero-error-tolerance environment.</li>
+          <li>Designed preprocessing for sensitive clinical data (missing-value handling, outlier detection, feature selection) and established evaluation workflows that improved recommendation accuracy across iterations.</li>
         </ul>
       </div>
 
@@ -580,6 +614,7 @@
         <div class="exp-role">Freelance Software Developer</div>
         <ul class="exp-points">
           <li>Sole architect and engineer for a full-stack desktop IDE — system design, Python backend, ML modules, React frontend, shipped and iterated with the client over two years.</li>
+          <li>Designed, trained, and delivered ML systems for clients, including ML-based code suggestions and error detection inside the desktop Python IDE.</li>
         </ul>
       </div>
 
@@ -613,7 +648,7 @@
       <div class="project-stack"><span class="stack-tag">PyTorch</span><span class="stack-tag">Time-Series ML</span><span class="stack-tag">GEE</span><span class="stack-tag">React</span></div>
       <div class="project-title">Farm Digital Twin</div>
       <div class="project-desc">Digital twin with a time-series ML backend, Google Earth Engine pipelines, and React frontend for what-if scenario planning and geospatial risk heatmaps. Modular layers update independently.</div>
-      <div class="project-metrics"><div class="metric"><div class="metric-val">~88%</div><div class="metric-label">Crop Stress Accuracy</div></div></div>
+      <div class="project-metrics"><div class="metric"><div class="metric-val">~96%</div><div class="metric-label">Crop Health Accuracy</div></div></div>
     </div>
 
     <div class="project-card reveal reveal-delay-1">
@@ -621,7 +656,7 @@
       <div class="project-stack"><span class="stack-tag">XGBoost</span><span class="stack-tag">Neural Networks</span><span class="stack-tag">FastAPI</span><span class="stack-tag">scikit-learn</span></div>
       <div class="project-title">Drug Recommendation Engine</div>
       <div class="project-desc">Multi-model recommendation system for gene–drug interaction prediction with FastAPI REST backend. Robust preprocessing, evaluation pipelines, and interpretability tooling for clinical validation.</div>
-      <div class="project-metrics"><div class="metric"><div class="metric-val">~90%</div><div class="metric-label">Clinical Accuracy</div></div></div>
+      <div class="project-metrics"><div class="metric"><div class="metric-val">~85–90%</div><div class="metric-label">Clinical Accuracy</div></div></div>
     </div>
 
     <div class="project-card reveal reveal-delay-2">
@@ -632,6 +667,37 @@
       <div class="project-metrics"><div class="metric"><div class="metric-val">Solo</div><div class="metric-label">Full Lifecycle</div></div></div>
     </div>
 
+
+    <div class="project-card reveal">
+      <div class="project-num">05</div>
+      <div class="project-stack"><span class="stack-tag">Qwen2.5-3B</span><span class="stack-tag">LoRA</span><span class="stack-tag">XGBoost</span><span class="stack-tag">PharmGKB</span><span class="stack-tag">IWPC</span></div>
+      <div class="project-title">LLM Pharmacogenomic Extraction & Warfarin Dosing</div>
+      <div class="project-desc">LoRA-fine-tuned Qwen2.5-3B-Instruct extracts gene–drug association status from PharmGKB text (pair-aware split of 11,035 pairs, no leakage). Extracted features are fused with genotype and clinical data in XGBoost for warfarin dose prediction (subject-level split).</div>
+      <div class="project-metrics"><div class="metric"><div class="metric-val">84.09%</div><div class="metric-label">Extraction Acc.</div></div><div class="metric"><div class="metric-val">R² 0.70</div><div class="metric-label">MAE 7.0 mg/wk</div></div></div>
+    </div>
+
+    <div class="project-card reveal reveal-delay-1">
+      <div class="project-num">06</div>
+      <div class="project-stack"><span class="stack-tag">DistilBERT</span><span class="stack-tag">Llama 3.1 8B</span><span class="stack-tag">PEFT/LoRA</span><span class="stack-tag">Transformers</span></div>
+      <div class="project-title">Emotion Classification & Response Generation</div>
+      <div class="project-desc">Classifies messages into eight emotional states (incl. Crisis Risk) with fully fine-tuned DistilBERT, then generates state-conditioned responses with LoRA-tuned Llama 3.1 8B Instruct. Manuscript under review.</div>
+      <div class="project-metrics"><div class="metric"><div class="metric-val">93.4%</div><div class="metric-label">Accuracy (F1 92.4%)</div></div></div>
+    </div>
+
+    <div class="project-card reveal reveal-delay-2">
+      <div class="project-num">07</div>
+      <div class="project-stack"><span class="stack-tag">GraphRAG</span><span class="stack-tag">Knowledge Graphs</span><span class="stack-tag">Vector Retrieval</span></div>
+      <div class="project-title">GraphRAG for Multi-Hop QA</div>
+      <div class="project-desc">Combined knowledge-graph traversal with vector retrieval, lifting multi-hop QA accuracy over a standard RAG baseline.</div>
+      <div class="project-metrics"><div class="metric"><div class="metric-val">61→82%</div><div class="metric-label">+21 pp vs RAG</div></div></div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-num">08</div>
+      <div class="project-stack"><span class="stack-tag">ResNet</span><span class="stack-tag">DenseNet</span><span class="stack-tag">TensorFlow/Keras</span><span class="stack-tag">Cloud</span></div>
+      <div class="project-title">Plant Disease Detection</div>
+      <div class="project-desc">Multi-class plant disease classification with ResNet and DenseNet, deployed as a cloud inference service.</div>
+    </div>
   </div>
 </section>
 
@@ -724,7 +790,7 @@
         <div class="ddw-item">FastAPI inference service — under 200ms SLA, production</div>
         <div class="ddw-item">Feature engineering for sensitive clinical datasets</div>
         <div class="ddw-item">Model interpretability for physician trust</div>
-        <div class="ddw-item">Drug recommendation engine — ~90% accuracy on held-out data</div>
+        <div class="ddw-item">Drug recommendation engine — ~85–90% accuracy on held-out data</div>
       </div>
       <div class="domain-deep-card">
         <div class="domain-big-num">02</div>
@@ -743,7 +809,7 @@
         <div class="domain-deep-body">Built distributed systems for real-time crop health monitoring and digital twin simulation using satellite data — bridging remote sensing, ML, and usable farm-level interfaces.</div>
         <div class="ddw-item">Sentinel-2 + GEE geospatial ML pipeline</div>
         <div class="ddw-item">RF/CNN classifiers for crop disease detection</div>
-        <div class="ddw-item">Digital twin — ~88% crop stress prediction accuracy</div>
+        <div class="ddw-item">Digital twin — ~96% crop health classification accuracy</div>
         <div class="ddw-item">BAIF volunteer — field data & rural stakeholder collaboration</div>
       </div>
     </div>
@@ -813,10 +879,30 @@
         <div class="pub-meta">ICSCAN 2026 · Precision Agriculture</div>
         <div class="pub-title">Farm Digital Twin and Deep Learning-Based Crop Health Detection Using Multi-Index Vegetation Signals from Sentinel-2 Satellite Imagery</div>
         <div class="pub-authors">Sathya Raman, Ananya Sakhalkar, Priya Debnath</div>
-        <div class="pub-venue">2026 International Conference on System, Computation, Automation and Networking (ICSCAN) · DOI: 10.1109/ICSCAN66520.2026.11588351</div>
+        <div class="pub-venue">2026 International Conference on System, Computation, Automation and Networking (ICSCAN) · DOI: 10.1109/ICSCAN66520.2026.11588351 · Primary contributor (methodology, model development, analysis); presented at the conference.</div>
       </div>
       <!-- 🔗 PASTE YOUR PAPER LINK HERE (e.g. the IEEE Xplore URL) -->
       <a href="https://ieeexplore.ieee.org/document/11588351" target="_blank" class="pub-link">Read Paper →</a>
+    </div>
+
+    <div class="pub-card reveal" style="margin-top:1.25rem">
+      <div class="pub-icon">arXiv</div>
+      <div>
+        <div class="pub-meta">Preprint · Sole Author</div>
+        <div class="pub-title">LLM-Based Extraction of Pharmacogenomic Gene-Drug Associations from PharmGKB Text: A Feature-Fusion Approach for Warfarin Dose Prediction</div>
+        <div class="pub-authors">A. Sakhalkar</div>
+      </div>
+      <!-- arXiv link button goes here once you have the URL (copy the Read Paper button above) -->
+    </div>
+
+    <div class="pub-card reveal" style="margin-top:1.25rem">
+      <div class="pub-icon">Under Review</div>
+      <div>
+        <div class="pub-meta">Sole-Authored Manuscripts</div>
+        <div class="pub-title">Emotion Classification and Emotion-Conditioned Response Generation for Mental-Health Support</div>
+        <div class="pub-authors">DistilBERT · LoRA-tuned Llama 3.1 8B Instruct</div>
+        <div class="pub-venue">Also under review: sole-authored extension of the ICSCAN 2026 crop-health detection work.</div>
+      </div>
     </div>
   </div>
 </section>
