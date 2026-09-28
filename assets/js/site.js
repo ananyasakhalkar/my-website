@@ -152,4 +152,130 @@
       });
     });
   }
+
+  /* ---------- Custom cursor: mouse only, never with reduced motion ---------- */
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion) {
+    var cur = document.createElement('div');
+    cur.className = 'cursor';
+    cur.setAttribute('aria-hidden', 'true');
+    cur.innerHTML = '<span class="cursor__dot"></span><span class="cursor__ring"><span></span></span>';
+    document.body.appendChild(cur);
+    root.classList.add('has-cursor');
+    var cDot = cur.firstChild, cRing = cur.lastChild;
+    var mx = 0, my = 0, rx = 0, ry = 0, cRaf = 0, seen = false;
+    var follow = function () {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      cRing.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
+      cRaf = Math.abs(mx - rx) + Math.abs(my - ry) > 0.3 ? requestAnimationFrame(follow) : 0;
+    };
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      mx = e.clientX; my = e.clientY;
+      if (!seen) { rx = mx; ry = my; seen = true; }
+      cDot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+      cur.classList.add('is-on');
+      cur.classList.toggle('is-hover', !!(e.target.closest && e.target.closest('a, button, summary, .card')));
+      if (!cRaf) cRaf = requestAnimationFrame(follow);
+    }, { passive: true });
+    document.addEventListener('mouseout', function (e) { if (!e.relatedTarget) cur.classList.remove('is-on'); });
+    document.addEventListener('pointerdown', function () { cur.classList.add('is-down'); });
+    document.addEventListener('pointerup', function () { cur.classList.remove('is-down'); });
+  }
+
+  /* ---------- Floating quick-links satellite: click to open, drag to move ---------- */
+  var orbit = document.getElementById('orbit');
+  if (orbit) {
+    var oBtn = orbit.querySelector('.orbit__btn');
+    var oPanel = document.getElementById('orbit-panel');
+    var SIZE = 58, EDGE = 20;
+    orbit.hidden = false;
+
+    var setOpen = function (open, refocus) {
+      oPanel.hidden = !open;
+      oBtn.setAttribute('aria-expanded', String(open));
+      if (open) { var first = oPanel.querySelector('a, button'); if (first) first.focus(); }
+      else if (refocus) oBtn.focus();
+    };
+    var place = function (x, y) {
+      orbit.style.left = x + 'px';
+      orbit.style.top = y + 'px';
+      orbit.style.right = 'auto';
+      orbit.style.bottom = 'auto';
+      orbit.classList.toggle('orbit--left', x + SIZE / 2 < window.innerWidth / 2);
+      orbit.classList.toggle('orbit--top', y < 340);
+    };
+    // Snap to the nearest side; remember the side and height as a fraction of the viewport.
+    var spot = null;
+    var snap = function () {
+      if (!spot) return;
+      var x = spot.side === 'left' ? EDGE : window.innerWidth - SIZE - EDGE;
+      var y = Math.min(Math.max(spot.y * window.innerHeight, 76), window.innerHeight - SIZE - EDGE);
+      place(x, y);
+    };
+    try { spot = JSON.parse(localStorage.getItem('orbit') || 'null'); } catch (e) { spot = null; }
+    snap();
+    window.addEventListener('resize', snap);
+
+    var drag = null, dragged = false;
+    oBtn.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      var r = orbit.getBoundingClientRect();
+      drag = { sx: e.clientX, sy: e.clientY, ox: r.left, oy: r.top, moved: false };
+      oBtn.setPointerCapture(e.pointerId);
+    });
+    oBtn.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+      if (!drag.moved) {
+        if (Math.abs(dx) + Math.abs(dy) < 6) return;
+        drag.moved = true;
+        orbit.classList.remove('is-snapping');
+        orbit.classList.add('is-dragging');
+        setOpen(false);
+      }
+      place(drag.ox + dx, drag.oy + dy);
+    });
+    var endDrag = function () {
+      if (!drag) return;
+      var moved = drag.moved;
+      drag = null;
+      if (!moved) return;
+      dragged = true;
+      orbit.classList.remove('is-dragging');
+      var r = orbit.getBoundingClientRect();
+      spot = { side: r.left + r.width / 2 < window.innerWidth / 2 ? 'left' : 'right', y: r.top / window.innerHeight };
+      orbit.classList.add('is-snapping');
+      snap();
+      try { localStorage.setItem('orbit', JSON.stringify(spot)); } catch (e) { /* position is session-only */ }
+    };
+    oBtn.addEventListener('pointerup', endDrag);
+    oBtn.addEventListener('pointercancel', endDrag);
+    oBtn.addEventListener('click', function () {
+      if (dragged) { dragged = false; return; }
+      setOpen(oBtn.getAttribute('aria-expanded') !== 'true');
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !oPanel.hidden) setOpen(false, true);
+    });
+    document.addEventListener('pointerdown', function (e) {
+      if (!oPanel.hidden && !orbit.contains(e.target)) setOpen(false);
+    });
+    oPanel.addEventListener('click', function (e) {
+      var el = e.target.closest('a, button');
+      if (!el) return;
+      var act = el.getAttribute('data-orbit');
+      if (act === 'copy') {
+        var email = 'sakhalkarananya@gmail.com';
+        if (navigator.clipboard) navigator.clipboard.writeText(email).then(function () { say('Email address copied'); }, function () { say(email); });
+        else say(email);
+      } else if (act === 'theme' && toggle) {
+        toggle.click();
+        return; // keep the panel open so the change is visible
+      }
+      setOpen(false);
+    });
+    if (!toggle) { var t = oPanel.querySelector('[data-orbit="theme"]'); if (t) t.parentNode.hidden = true; }
+  }
 })();

@@ -33,7 +33,7 @@ Find the section, edit the text, save, and push. Things to know:
 | `index.html` | The whole site: content, meta tags, structured data (JSON-LD) |
 | `404.html` | "Page not found" page |
 | `assets/css/site.css` | Colour tokens (light and dark), typography, layout and print styles |
-| `assets/js/site.js` | Theme toggle, mobile menu, section index, reveal, copy BibTeX. The page works without it. |
+| `assets/js/site.js` | Theme toggle, mobile menu, section index, reveal, copy BibTeX, custom cursor (mouse only, off with reduced motion), floating "satellite" quick-links button (drag to move; position remembered). The page works without it. |
 | `assets/fonts/` | Self-hosted Newsreader, Geist and Geist Mono (SIL Open Font License, see `LICENSE-*.txt`) |
 | `assets/img/` | Favicon, touch icon, social card (`og.png`) and the hero contour lines |
 | `robots.txt`, `sitemap.xml` | Crawl files. On a project site, crawlers only read these once the site has a custom domain. |
