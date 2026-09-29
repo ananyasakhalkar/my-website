@@ -4,8 +4,9 @@
  */
 import { create } from 'zustand';
 import { prefersReducedMotion } from '../app/capabilities';
+import type { ReaderKind } from './kinds';
 
-export type ReaderKind = 'projects';
+export type { ReaderKind };
 export type Phase = 'closed' | 'opening' | 'rest' | 'drag' | 'settle' | 'turning' | 'closing';
 
 export interface PileSheet {

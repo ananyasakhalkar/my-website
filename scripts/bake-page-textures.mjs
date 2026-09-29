@@ -11,11 +11,14 @@ import { chromium } from 'playwright-core';
 const OUT = resolve('public/assets/pages');
 const W = 1024;
 const H = 1448;
-const PAGES = [{ kind: 'projects', count: 10 }];
+const PAGES = [
+  { kind: 'projects', count: 10 },
+  { kind: 'publications', count: 4 },
+];
 
 /** Hash of everything that affects how a page looks, stored next to the textures. */
 export async function contentHash() {
-  const files = ['src/styles/paper.css', 'src/reader/pages/ProjectPage.tsx'];
+  const files = ['src/styles/paper.css', 'src/reader/pages/ProjectPage.tsx', 'src/reader/pages/PublicationPage.tsx'];
   for (const f of await readdir('src/content')) files.push(join('src/content', f));
   const h = createHash('sha256');
   for (const f of files.sort()) h.update(await readFile(f));

@@ -29,6 +29,14 @@ export const POSES = {
     wide: pose([0.34, 1.25, 0.86], [0.34, 0.76, 0.225], 34),
     portrait: pose([0.34, 1.5, 0.78], [0.34, 0.76, 0.23], 60),
   },
+  card: {
+    wide: pose([-0.06, 1.18, 0.72], [-0.08, 0.78, 0.2], 46),
+    portrait: pose([-0.08, 1.35, 0.8], [-0.08, 0.77, 0.22], 60),
+  },
+  journals: {
+    wide: pose([-0.38, 1.2, 0.42], [-0.45, 0.78, -0.16], 46),
+    portrait: pose([-0.42, 1.34, 0.52], [-0.46, 0.76, -0.12], 60),
+  },
   folder: {
     wide: pose([-0.3, 1.18, 0.62], [-0.36, 0.78, 0.05], 46),
     portrait: pose([-0.36, 1.3, 0.72], [-0.4, 0.76, 0.08], 60),
@@ -44,6 +52,10 @@ export function poseForRoute(r: Route): PoseKey {
       return 'folder';
     case 'contact':
       return 'spill';
+    case 'publications':
+      return 'journals';
+    case 'report-card':
+      return 'card';
     default:
       return 'hero';
   }

@@ -9,36 +9,21 @@ import {
   MeshStandardMaterial,
   PlaneGeometry,
   Quaternion,
-  SRGBColorSpace,
-  TextureLoader,
   Vector3,
   type PerspectiveCamera,
   type Texture,
 } from 'three';
 import paperBend from '../scene/shaders/paperBend.vert.glsl?raw';
 import { FOLDER, STACK_TOP } from '../objects/ProjectsFolder';
-import { projects } from '../content/projects';
+import { JOURNALS, JOURNAL_TOP } from '../objects/JournalStack';
+import { KINDS, type ReaderKind } from './kinds';
+import { pageTexture } from './pageTextures';
 import { T, pageRect, setPhase, useReader, type PileSheet } from './readerStore';
 
 const PAGE_W = 0.21;
 const PAGE_H = 0.297;
 /** Reader distance in front of the camera (DESK_SPEC §4.1). */
 const READ_DIST = 0.42;
-
-// ---------- page textures (baked at build time from the same React page components) ----------
-const loader = new TextureLoader();
-const cache = new Map<string, Texture>();
-export function pageTexture(kind: string, n: number): Texture {
-  const key = `${kind}-${String(n).padStart(2, '0')}`;
-  let t = cache.get(key);
-  if (!t) {
-    t = loader.load(`${import.meta.env.BASE_URL}assets/pages/${key}.webp`);
-    t.colorSpace = SRGBColorSpace;
-    t.anisotropy = 8;
-    cache.set(key, t);
-  }
-  return t;
-}
 
 // ---------- poses ----------
 interface SheetPose {
@@ -56,17 +41,31 @@ const FLAT = new Quaternion()
   .multiply(new Quaternion().setFromAxisAngle(Y, Math.PI / 2))
   .multiply(new Quaternion().setFromAxisAngle(X, -Math.PI / 2));
 
-function stackPose(out: SheetPose, lift = 0) {
-  out.pos.set(FOLDER.x, FOLDER.y + STACK_TOP + 0.0008 + lift, FOLDER.z + 0.004);
-  out.quat.copy(FLAT);
+/** Publications lie portrait, top toward the window. */
+const FLAT_PUB = new Quaternion()
+  .setFromAxisAngle(Y, JOURNALS.rotY)
+  .multiply(new Quaternion().setFromAxisAngle(X, -Math.PI / 2));
+
+function stackPose(out: SheetPose, kind: ReaderKind) {
+  if (kind === 'projects') {
+    out.pos.set(FOLDER.x, FOLDER.y + STACK_TOP + 0.0008, FOLDER.z + 0.004);
+    out.quat.copy(FLAT);
+  } else {
+    out.pos.set(JOURNALS.x, JOURNAL_TOP + 0.0008, JOURNALS.z);
+    out.quat.copy(FLAT_PUB);
+  }
   out.scale = 1;
   return out;
 }
 
-const PILE_ORIGIN = new Vector3(FOLDER.x + 0.305, FOLDER.y + 0.0006, FOLDER.z - 0.03);
-function pilePose(out: SheetPose, s: PileSheet, index: number) {
-  out.pos.set(PILE_ORIGIN.x + s.dx, PILE_ORIGIN.y + index * 0.0005, PILE_ORIGIN.z + s.dz);
-  out.quat.copy(FLAT).premultiply(new Quaternion().setFromAxisAngle(Y, s.rot));
+const PILE = {
+  projects: { origin: new Vector3(FOLDER.x + 0.305, FOLDER.y + 0.0006, FOLDER.z - 0.03), flat: FLAT },
+  publications: { origin: new Vector3(-0.2, JOURNALS.y + 0.0006, 0.0), flat: FLAT_PUB },
+};
+function pilePose(out: SheetPose, kind: ReaderKind, s: PileSheet, index: number) {
+  const { origin, flat } = PILE[kind];
+  out.pos.set(origin.x + s.dx, origin.y + index * 0.0005, origin.z + s.dz);
+  out.quat.copy(flat).premultiply(new Quaternion().setFromAxisAngle(Y, s.rot));
   out.scale = 1;
   return out;
 }
@@ -127,11 +126,11 @@ function makePaperMaterial(map: Texture) {
 
 type Role = 'active' | 'leaving';
 
-function Sheet({ page, role }: { page: number; role: Role }) {
+function Sheet({ kind, page, role }: { kind: ReaderKind; page: number; role: Role }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const mesh = useRef<Mesh>(null);
-  const mat = useMemo(() => makePaperMaterial(pageTexture('projects', page)), [page]);
+  const mat = useMemo(() => makePaperMaterial(pageTexture(kind, page)), [kind, page]);
   useEffect(() => () => mat.material.dispose(), [mat]);
   const poses = useMemo(() => ({ a: newPose(), b: newPose(), out: newPose() }), []);
 
@@ -145,7 +144,7 @@ function Sheet({ page, role }: { page: number; role: Role }) {
 
     if (role === 'active') {
       if (s.phase === 'opening') {
-        stackPose(a);
+        stackPose(a, kind);
         reader();
         const u = (t - T.liftDelay) / T.flight;
         const e = blend(out, a, b, u, 0.09);
@@ -153,8 +152,8 @@ function Sheet({ page, role }: { page: number; role: Role }) {
         lit = e;
       } else if (s.phase === 'turning' && s.leaving) {
         // Forward: lift from the folder. Back: pick it up from the read pile.
-        if (s.leaving.dir === 1) stackPose(a);
-        else pilePose(a, { page, rot: 0, dx: 0, dz: 0 }, s.pile.length);
+        if (s.leaving.dir === 1) stackPose(a, kind);
+        else pilePose(a, kind, { page, rot: 0, dx: 0, dz: 0 }, s.pile.length);
         reader();
         const u = (t - T.turnDelay) / T.turn;
         const e = blend(out, a, b, u, 0.07);
@@ -162,7 +161,7 @@ function Sheet({ page, role }: { page: number; role: Role }) {
         lit = e;
       } else if (s.phase === 'closing') {
         reader();
-        stackPose(a);
+        stackPose(a, kind);
         const e = blend(out, b, a, t / (T.close * 0.5), 0.06);
         bend = Math.sin(Math.PI * e) * 0.25;
         lit = 1 - e;
@@ -177,8 +176,8 @@ function Sheet({ page, role }: { page: number; role: Role }) {
       readerPose(a, camera, size.width, size.height, s.drag);
       if (s.leaving.dir === 1) {
         const top = s.pile[s.pile.length - 1];
-        pilePose(b, top ?? { page, rot: 0, dx: 0, dz: 0 }, s.pile.length - 1);
-      } else stackPose(b);
+        pilePose(b, kind, top ?? { page, rot: 0, dx: 0, dz: 0 }, s.pile.length - 1);
+      } else stackPose(b, kind);
       const e = blend(out, a, b, t / T.turn, 0.05);
       bend = -Math.sin(Math.PI * e) * 0.3;
       lit = 1 - e;
@@ -198,7 +197,7 @@ function Sheet({ page, role }: { page: number; role: Role }) {
   return <mesh ref={mesh} geometry={geometry} material={mat.material} castShadow frustumCulled={false} renderOrder={20} />;
 }
 
-function PileSheets() {
+function PileSheets({ kind }: { kind: ReaderKind }) {
   const pile = useReader((s) => s.pile);
   const leaving = useReader((s) => s.leaving);
   const phase = useReader((s) => s.phase);
@@ -206,16 +205,16 @@ function PileSheets() {
   return (
     <>
       {shown.map((p, i) => (
-        <PileSheetMesh key={p.page} sheet={p} index={i} />
+        <PileSheetMesh key={p.page} kind={kind} sheet={p} index={i} />
       ))}
     </>
   );
 }
 
-function PileSheetMesh({ sheet, index }: { sheet: PileSheet; index: number }) {
-  const mat = useMemo(() => makePaperMaterial(pageTexture('projects', sheet.page)), [sheet.page]);
+function PileSheetMesh({ kind, sheet, index }: { kind: ReaderKind; sheet: PileSheet; index: number }) {
+  const mat = useMemo(() => makePaperMaterial(pageTexture(kind, sheet.page)), [kind, sheet.page]);
   useEffect(() => () => mat.material.dispose(), [mat]);
-  const pose = useMemo(() => pilePose(newPose(), sheet, index), [sheet, index]);
+  const pose = useMemo(() => pilePose(newPose(), kind, sheet, index), [kind, sheet, index]);
   const mesh = useRef<Mesh>(null);
   useFrame(() => {
     // While closing, the pile flies back into the folder.
@@ -224,7 +223,7 @@ function PileSheetMesh({ sheet, index }: { sheet: PileSheet; index: number }) {
     if (!m) return;
     if (s.phase === 'closing') {
       const out = newPose();
-      blend(out, pose, stackPose(newPose()), (performance.now() - s.t0 - 80) / (T.close * 0.4), 0.05);
+      blend(out, pose, stackPose(newPose(), kind), (performance.now() - s.t0 - 80) / (T.close * 0.4), 0.05);
       m.position.copy(out.pos);
       m.quaternion.copy(out.quat);
     } else {
@@ -300,14 +299,14 @@ export function ReaderPapers() {
   const leaving = useReader((s) => s.leaving);
   useEffect(() => {
     // Warm the neighbouring page textures.
-    if (kind) [page - 1, page, page + 1].filter((n) => n >= 1 && n <= projects.length).forEach((n) => pageTexture('projects', n));
+    if (kind) [page - 1, page, page + 1].filter((n) => n >= 1 && n <= KINDS[kind].count).forEach((n) => pageTexture(kind, n));
   }, [kind, page]);
   return (
     <>
       <Sequencer />
-      {kind && <Sheet key={`a${page}`} page={page} role="active" />}
-      {kind && leaving && <Sheet key={`l${leaving.page}`} page={leaving.page} role="leaving" />}
-      {kind && <PileSheets />}
+      {kind && <Sheet key={`${kind}a${page}`} kind={kind} page={page} role="active" />}
+      {kind && leaving && <Sheet key={`${kind}l${leaving.page}`} kind={kind} page={leaving.page} role="leaving" />}
+      {kind && <PileSheets kind={kind} />}
       <Scrim />
     </>
   );

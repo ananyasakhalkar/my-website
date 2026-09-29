@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { projects } from '../content/projects';
+import { publications } from '../content/publications';
 import { closeView, navigate, useRoute } from '../app/routes';
 import { ProjectPage } from './pages/ProjectPage';
+import { PublicationPage } from './pages/PublicationPage';
+import { KINDS, isReaderKind } from './kinds';
 import { closeReader, openReader, pageRect, setPhase, turnTo, useReader } from './readerStore';
 
 /** Keeps the reader in step with the route (the route is the single source of navigation state). */
@@ -9,8 +12,8 @@ export function ReaderSync() {
   const route = useRoute((s) => s.route);
   useEffect(() => {
     const s = useReader.getState();
-    if (route.view === 'projects') {
-      if (s.kind !== 'projects' || s.phase === 'closing' || s.phase === 'closed') openReader('projects', route.page);
+    if (isReaderKind(route.view) && 'page' in route) {
+      if (s.kind !== route.view || s.phase === 'closing' || s.phase === 'closed') openReader(route.view, route.page);
       else if (route.page !== s.page) turnTo(route.page);
     } else if (s.kind) closeReader();
   }, [route]);
@@ -38,14 +41,16 @@ export function Reader() {
   const dragFrac = useReader((s) => s.drag);
   const { w, h } = useViewport();
   const rect = pageRect(w, h);
-  const total = projects.length;
-  const project = projects[page - 1];
+  const total = kind ? KINDS[kind].count : 0;
+  const project = kind === 'projects' ? projects[page - 1] : undefined;
+  const pub = kind === 'publications' ? publications[page - 1] : undefined;
   const pageEl = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x0: number; y0: number; last: number; lastT: number; vel: number; active: boolean; id: number } | null>(null);
 
   const go = (n: number) => {
-    if (n < 1 || n > total) return;
-    navigate({ view: 'projects', page: n });
+    const k = useReader.getState().kind;
+    if (!k || n < 1 || n > KINDS[k].count) return;
+    navigate({ view: k, page: n });
   };
 
   // Keyboard: ←/→, PageUp/PageDown, Esc.
@@ -96,7 +101,8 @@ export function Reader() {
     if (phase === 'rest') pageEl.current?.focus({ preventScroll: true });
   }, [phase, page]);
 
-  if (!kind || !project) return null;
+  if (!kind || (!project && !pub)) return null;
+  const meta = KINDS[kind];
 
   const onDown = (e: RPointerEvent<HTMLDivElement>) => {
     if (phase !== 'rest' || e.button !== 0) return;
@@ -142,7 +148,7 @@ export function Reader() {
     ? `translate(${(dragFrac * 1.05 * rect.w).toFixed(1)}px, ${(Math.abs(dragFrac) * 0.04 * rect.h).toFixed(1)}px) rotate(${(dragFrac * 0.17).toFixed(4)}rad)`
     : undefined;
   return (
-    <div className="reader" role="dialog" aria-modal="true" aria-label="Projects folder">
+    <div className="reader" role="dialog" aria-modal="true" aria-label={meta.label}>
       <button type="button" className="reader__outside" aria-label="Back to desk" tabIndex={-1} onClick={closeView} />
       <div
         ref={pageEl}
@@ -154,26 +160,27 @@ export function Reader() {
         onPointerUp={onUp}
         onPointerCancel={onUp}
       >
-        <ProjectPage project={project} arriving={atRest} />
+        {project && <ProjectPage project={project} arriving={atRest} />}
+        {pub && <PublicationPage pub={pub} />}
       </div>
       <div className="reader__hud">
         <button type="button" className="hud-btn" onClick={closeView}>
           ← back to desk
         </button>
         <div className="pager">
-          <button type="button" className="hud-btn pager__btn" aria-label="Previous project" disabled={page === 1} onClick={() => go(page - 1)}>
+          <button type="button" className="hud-btn pager__btn" aria-label={`Previous ${meta.noun.toLowerCase()}`} disabled={page === 1} onClick={() => go(page - 1)}>
             ‹
           </button>
           <span className="pager__n" aria-hidden="true">
             {String(page).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </span>
-          <button type="button" className="hud-btn pager__btn" aria-label="Next project" disabled={page === total} onClick={() => go(page + 1)}>
+          <button type="button" className="hud-btn pager__btn" aria-label={`Next ${meta.noun.toLowerCase()}`} disabled={page === total} onClick={() => go(page + 1)}>
             ›
           </button>
         </div>
       </div>
       <p className="sr-only" aria-live="polite">
-        {atRest ? `Project ${page} of ${total}: ${project.title}` : ''}
+        {atRest ? `${meta.noun} ${page} of ${total}: ${meta.title(page)}` : ''}
       </p>
     </div>
   );
