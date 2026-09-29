@@ -49,7 +49,8 @@ vec4 spill(vec2 p, out float edgeGlint) {
   dryA = mix(dryA, 0.92, band);
 
   vec3 col = mix(wetCol, dryCol, uDry);
-  float a = mix(wetA, dryA, uDry) * inside;
+  // The pool starts 2 cm wide: fade it in so nothing shows before the spill.
+  float a = mix(wetA, dryA, uDry) * inside * smoothstep(0.0, 0.02, uSpread);
   edgeGlint = (1.0 - smoothstep(0.0, 0.0022, abs(d + 0.0016))) * (1.0 - uDry) * inside;
 
   // Contact details develop in the coffee, a little behind the advancing front.
