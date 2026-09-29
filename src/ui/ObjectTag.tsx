@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3, type Object3D } from 'three';
+import { MathUtils, Vector3, type Object3D } from 'three';
 import { create } from 'zustand';
 import { isTouch } from '../app/capabilities';
 import { useDesk } from '../app/store';
@@ -33,21 +33,43 @@ export function registerTag(id: string, text: string, object: Object3D, offset: 
 }
 
 const v = new Vector3();
+const at = (x: number, y: number) => 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
 /** Projects every anchor to screen space and moves its DOM tag and proxy (CSSOM transforms). */
 export function TagProjector() {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
+  // Touch shows every tag at once: keep them on screen and stack any that collide upwards.
+  const spread = isTouch();
   useFrame(() => {
-    for (const a of anchors.values()) {
+    const pts = [...anchors.values()].map((a) => {
       v.copy(a.offset);
       a.object.localToWorld(v);
       v.project(camera);
-      const x = ((v.x * 0.5 + 0.5) * size.width).toFixed(1);
-      const y = ((-v.y * 0.5 + 0.5) * size.height).toFixed(1);
-      const tag = document.getElementById('tag-' + a.id);
-      if (tag) tag.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0) translate(-50%, -100%)';
-      const proxy = document.getElementById('proxy-' + a.id);
-      if (proxy) proxy.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0) translate(-50%, -8%)';
+      return { id: a.id, x: (v.x * 0.5 + 0.5) * size.width, y: (-v.y * 0.5 + 0.5) * size.height };
+    });
+    const placed: { x: number; y: number; w: number; h: number }[] = [];
+    for (const p of pts.sort((a, b) => b.y - a.y)) {
+      const proxy = document.getElementById('proxy-' + p.id);
+      if (proxy) proxy.style.transform = at(p.x, p.y) + ' translate(-50%, -8%)';
+      const tag = document.getElementById('tag-' + p.id);
+      if (!tag) continue;
+      let { x, y } = p;
+      if (spread) {
+        const w = tag.offsetWidth;
+        const h = tag.offsetHeight;
+        x = MathUtils.clamp(x, w / 2 + 8, size.width - w / 2 - 8);
+        for (let moved = true, n = 0; moved && n < 8; n++) {
+          moved = false;
+          for (const r of placed) {
+            if (Math.abs(r.x - x) < (r.w + w) / 2 && Math.abs(r.y - y) < h) {
+              y = r.y - h - 2;
+              moved = true;
+            }
+          }
+        }
+        placed.push({ x, y, w, h });
+      }
+      tag.style.transform = at(x, y) + ' translate(-50%, -100%) rotate(-3deg)';
     }
   });
   return null;

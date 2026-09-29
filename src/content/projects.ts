@@ -16,6 +16,8 @@ export interface Project {
   links: Link[];
   note?: string; // ✎ (D17 / Q12)
   relatedPub?: 1 | 2 | 3;
+  /** Stamp on the project page when it isn't a paper's status. */
+  stamp?: string;
 }
 
 export const projects: Project[] = [
@@ -109,6 +111,7 @@ export const projects: Project[] = [
     figure: { strong: '1st', text: 'at Digithon 2.0, among 77 teams' },
     stack: [],
     links: [],
+    stamp: '1st place · Digithon 2.0', // F-PRJ-9
   },
   {
     n: 8, // F-PRJ-10

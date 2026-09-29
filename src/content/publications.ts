@@ -10,6 +10,8 @@ export interface Publication {
   untitled?: boolean;
   status: PubStatus;
   tag: string;
+  /** Short status stamp on the paper and its project page (restates `status` only). */
+  stamp: string;
   /** Author list exactly as published (order never changes). */
   authors?: string;
   venue?: string;
@@ -33,6 +35,7 @@ export const publications: Publication[] = [
     title:
       'Farm Digital Twin and Deep Learning-Based Crop Health Detection Using Multi-Index Vegetation Signals from Sentinel-2 Satellite Imagery',
     status: 'published',
+    stamp: 'Published · IEEE',
     tag: 'Published · IEEE',
     authors: 'Sathya Raman, Ananya Sakhalkar, Priya Debnath',
     venue: '2026 International Conference on System, Computation, Automation and Networking (ICSCAN)',
@@ -63,6 +66,7 @@ export const publications: Publication[] = [
     title:
       'LLM-Based Extraction of Pharmacogenomic Gene-Drug Associations from PharmGKB Text: A Feature-Fusion Approach for Warfarin Dose Prediction',
     status: 'report',
+    stamp: 'Technical report',
     tag: 'Technical report · Sole author',
     authors: 'A. Sakhalkar',
     venue: 'Technical report (arXiv).',
@@ -75,6 +79,7 @@ export const publications: Publication[] = [
     id: 'pub-emotion',
     title: 'Emotion Classification and Emotion-Conditioned Response Generation for Mental-Health Support',
     status: 'preparation',
+    stamp: 'In preparation',
     tag: 'In preparation · Sole author',
     authors: 'A. Sakhalkar',
     venue: 'Manuscript in preparation.',
@@ -89,6 +94,7 @@ export const publications: Publication[] = [
     title: 'Also in preparation: sole-authored extension of the ICSCAN 2026 crop-health detection work.',
     untitled: true,
     status: 'preparation',
+    stamp: 'In preparation',
     tag: 'In preparation · Sole author',
     venue: 'Manuscript in preparation.',
     links: [],

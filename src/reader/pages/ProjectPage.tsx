@@ -43,12 +43,10 @@ function hash(s: string): number {
 
 /** Status stamp: restates a fact only (DESK_SPEC §8). */
 function stampFor(p: Project): { text: string; tone: 'red' | 'blue' } | null {
-  if (p.id === 'project-genomedic') return { text: '1st place · Digithon 2.0', tone: 'red' };
+  if (p.stamp) return { text: p.stamp, tone: 'red' };
   const pub = publications.find((x) => x.n === p.relatedPub);
   if (!pub) return null;
-  if (pub.status === 'published') return { text: `Paper [${pub.n}] · IEEE`, tone: 'red' };
-  if (pub.status === 'report') return { text: `Technical report [${pub.n}]`, tone: 'blue' };
-  return { text: `In preparation [${pub.n}]`, tone: 'blue' };
+  return { text: `${pub.stamp} [${pub.n}]`, tone: pub.status === 'published' ? 'red' : 'blue' };
 }
 
 export function ProjectPage({ project, arriving = false }: { project: Project; arriving?: boolean }) {

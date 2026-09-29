@@ -103,7 +103,7 @@ export function ReportCardView() {
           <dl className="rc-list">
             <dt>Research practice</dt>
             <dd>{education.practice}</dd>
-            <dt>Distinctions</dt>
+            <dt>Recognition &amp; service</dt>
             <dd>
               <ul>
                 {recognition.map((r) => (

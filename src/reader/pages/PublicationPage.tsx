@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import { publications, type Publication } from '../../content/publications';
 
-/** Status stamp wording restates the publication status only (Ananya's corrections applied). */
-const STAMP: Record<Publication['status'], { text: string; tone: 'red' | 'blue' }> = {
-  published: { text: 'Published · IEEE', tone: 'red' },
-  report: { text: 'Technical report', tone: 'blue' },
-  preparation: { text: 'In preparation', tone: 'blue' },
-};
 
 /** Author list exactly as published; her own name is bolded in place (standard citation style). */
 function Authors({ list }: { list: string }) {
@@ -20,7 +14,7 @@ function Authors({ list }: { list: string }) {
 
 export function PublicationPage({ pub, interactive = true }: { pub: Publication; interactive?: boolean }) {
   const [copied, setCopied] = useState(false);
-  const stamp = STAMP[pub.status];
+  const stamp = { text: pub.stamp, tone: pub.status === 'published' ? 'red' : 'blue' };
   const copy = async () => {
     if (!pub.bibtex) return;
     try {

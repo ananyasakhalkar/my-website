@@ -5,11 +5,10 @@ export const profile = {
   name: 'Ananya Sakhalkar', // F-ID-1
   wordmark: { first: 'A', rest: 'Sakhalkar' },
   status: 'Seeking MS / PhD positions · Summer 2027 intake', // Q1 answer (source A)
-  statusShort: 'Seeking MS / PhD positions',
   lede: 'Machine learning where errors are costly — language models for biomedical text and mental-health support, and production ML on a live healthcare platform.', // ✎
   // ✎ Built from F-ID-2, F-ID-4 (A: 8.93), F-PRJ-5, F-PRJ-6, F-EXP-*.
   intro:
-    'I studied Computer Science at SRM IST, Chennai (B.Tech, 2022 – 2026, CGPA 8.93 / 10). My recent research fine-tunes language models to extract gene–drug associations from PharmGKB text, and to classify emotional state — including crisis risk — in messages, for mental-health support. I have also built and shipped machine learning in production at a government healthcare platform, Jio Platforms and Reliance Industries.',
+    'I studied Computer Science at SRM IST Chennai (B.Tech, 2022 – 2026, CGPA 8.93 / 10). My recent research fine-tunes language models to extract gene–drug associations from PharmGKB text, and to classify emotional state — including crisis risk — in messages, for mental-health support. I have also built and shipped machine learning in production at a government healthcare platform, Jio Platforms and Reliance Industries.',
   links: [
     { label: 'CV (PDF)', href: 'resume.pdf', newTab: true },
     { label: 'Email', href: 'mailto:sakhalkarananya@gmail.com' },
