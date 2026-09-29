@@ -13,6 +13,8 @@ export const params = {
   noIntro: q.has('nointro'),
   /** Render the intro camera at this many seconds into the move (deterministic intro frames). */
   introAt: num('introAt'),
+  /** Freeze the spill sequence at this many ms (deterministic QA frames of §4.3). */
+  spillAt: num('spillAt'),
   /** Freeze wind/animation time at this many seconds (deterministic frames). */
   freeze: num('freeze'),
   /** Force a quality tier. */

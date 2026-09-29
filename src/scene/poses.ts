@@ -24,6 +24,11 @@ export const POSES = {
     wide: pose([0.2, 1.62, 1.62], [0.02, 0.97, -0.55], 46),
     portrait: pose([0, 1.9, 2.2], [0, 1.2, -0.6], 64),
   },
+  spill: {
+    // High and forward: the sun's mirror glare on the desk falls outside the text block.
+    wide: pose([0.34, 1.25, 0.86], [0.34, 0.76, 0.225], 34),
+    portrait: pose([0.34, 1.5, 0.78], [0.34, 0.76, 0.23], 60),
+  },
   folder: {
     wide: pose([-0.3, 1.18, 0.62], [-0.36, 0.78, 0.05], 46),
     portrait: pose([-0.36, 1.3, 0.72], [-0.4, 0.76, 0.08], 60),
@@ -37,6 +42,8 @@ export function poseForRoute(r: Route): PoseKey {
   switch (r.view) {
     case 'projects':
       return 'folder';
+    case 'contact':
+      return 'spill';
     default:
       return 'hero';
   }

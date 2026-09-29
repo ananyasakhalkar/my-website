@@ -133,3 +133,36 @@ html.bake #plain { display: none; }
 .hud-btn:disabled { opacity: 0.4; cursor: default; }
 .hud-btn:focus-visible { outline: 2px solid #c2410c; outline-offset: 3px; }
 .pager__btn { padding: 0; font-size: 1.4rem; }
+
+/* ---------- Contact in the coffee (DOM half) ---------- */
+.contact-layer { position: fixed; inset: 0; z-index: 18; pointer-events: none; }
+.contact-layer.is-on > * { pointer-events: auto; }
+.stain-links { margin: 0; padding: 0; list-style: none; }
+.stain-link {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  padding: 0 0.4em;
+  color: transparent; /* the pigment in the coffee is what you see; this is the real, selectable text */
+  text-decoration: none;
+  font-family: Newsreader, Georgia, serif;
+  white-space: nowrap;
+  overflow: hidden;
+  border-radius: 6px;
+  visibility: hidden;
+}
+.stain-link.is-on { visibility: visible; }
+.stain-link::selection { background: rgb(194 65 12 / 0.35); color: transparent; }
+.stain-link:hover { background: rgb(255 214 150 / 0.12); }
+.stain-link:focus-visible { outline: 2px solid #f08a55; outline-offset: 2px; }
+.stain-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  animation: rise-in 0.3s ease-out both;
+}
+@keyframes rise-in { from { opacity: 0; translate: 0 8px; } }
+@media (prefers-reduced-motion: reduce) { .stain-controls { animation: none; } }
