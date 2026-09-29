@@ -1,0 +1,34 @@
+/* The 3D desk takes the whole viewport; the plain document stays in the DOM for no-JS / fallback. */
+html.desk-on,
+html.desk-on body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #2a2019;
+}
+html.desk-on #plain {
+  display: none; /* M6: becomes the accessible mirror / #/plain route */
+}
+html.desk-on #app {
+  position: fixed;
+  inset: 0;
+}
+
+.skip-intro {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 10;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  border-radius: 999px;
+  background: rgb(30 22 16 / 0.35);
+  color: #fbf6ee;
+  font: 500 0.85rem/1 Geist, system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.skip-intro:hover { background: rgb(30 22 16 / 0.55); }
+.skip-intro:focus-visible { outline: 2px solid #c2410c; outline-offset: 3px; }

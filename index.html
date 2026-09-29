@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-F9iwwmMLa+450QBGOroepRar2g9uHv35dq1sZEl4cfg='; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')d.setAttribute('data-theme',t)}catch(e){}})();</script>
 
 <title>Ananya Sakhalkar — ML for healthcare and mental-health NLP</title>
 <meta name="description" content="Ananya Sakhalkar — ML researcher-engineer. IEEE ICSCAN 2026 author; LLM pharmacogenomic extraction, mental-health NLP, and production healthcare ML.">
@@ -15,8 +13,8 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F6F3EC">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14120F">
-<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 
 <meta property="og:type" content="profile">
 <meta property="og:title" content="Ananya Sakhalkar">
@@ -28,10 +26,9 @@
 <meta property="profile:last_name" content="Sakhalkar">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="preload" href="assets/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/site.css">
-<script src="assets/js/site.js" defer></script>
+<link rel="preload" href="/assets/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
 
 <script type="application/ld+json">
 {
@@ -69,6 +66,7 @@
 </script>
 </head>
 <body id="top">
+<div id="plain" class="plain">
 
 <a class="skip" href="#main">Skip to content</a>
 
@@ -535,30 +533,11 @@
   </div>
 </footer>
 
-<!-- ===== Floating quick-links satellite (shown by site.js; drag it anywhere) ===== -->
-<aside class="orbit" id="orbit" aria-label="Quick links" hidden>
-  <div class="orbit__panel" id="orbit-panel" hidden>
-    <p class="label">Quick links</p>
-    <ul>
-      <li><a href="#publications">Read the papers <span aria-hidden="true">→</span></a></li>
-      <li><a href="resume.pdf" target="_blank" rel="noopener noreferrer">Download CV <span aria-hidden="true">↓</span></a></li>
-      <li><a href="mailto:sakhalkarananya@gmail.com">Email Ananya <span aria-hidden="true">→</span></a></li>
-      <li><button type="button" data-orbit="copy">Copy email address</button></li>
-      <li><button type="button" data-orbit="theme">Switch theme</button></li>
-    </ul>
-    <p class="orbit__hint">Tip: drag the satellite anywhere.</p>
-  </div>
-  <button class="orbit__btn" type="button" aria-expanded="false" aria-controls="orbit-panel" aria-label="Quick links">
-    <svg viewBox="0 0 64 64" aria-hidden="true">
-      <circle class="orbit__planet" cx="32" cy="32" r="13"/>
-      <path class="orbit__lines" d="M22 27c6 3 14 3 20 0M20 33c7 3 17 3 24 0M23 39c5 2 13 2 18 0"/>
-      <ellipse class="orbit__ring" cx="32" cy="32" rx="24" ry="24"/>
-      <g class="orbit__sat"><circle cx="32" cy="8" r="3.5"/><path d="M26.5 8h-3M37.5 8h3"/></g>
-    </svg>
-  </button>
-</aside>
-
 <p class="toast" id="toast" role="status" aria-live="polite"></p>
+</div>
+
+<div id="app"></div>
+<script type="module" src="/src/main.tsx"></script>
 
 </body>
 </html>
