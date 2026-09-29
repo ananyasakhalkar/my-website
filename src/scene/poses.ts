@@ -29,6 +29,10 @@ export const POSES = {
     wide: pose([0.34, 1.25, 0.86], [0.34, 0.76, 0.225], 34),
     portrait: pose([0.34, 1.5, 0.78], [0.34, 0.76, 0.23], 60),
   },
+  badges: {
+    wide: pose([0.3, 1.25, 0.7], [0.3, 0.9, -0.3], 46),
+    portrait: pose([0.3, 1.4, 0.8], [0.3, 0.9, -0.3], 62),
+  },
   card: {
     wide: pose([-0.06, 1.18, 0.72], [-0.08, 0.78, 0.2], 46),
     portrait: pose([-0.08, 1.35, 0.8], [-0.08, 0.77, 0.22], 60),
@@ -56,6 +60,8 @@ export function poseForRoute(r: Route): PoseKey {
       return 'journals';
     case 'report-card':
       return 'card';
+    case 'experience':
+      return 'badges';
     default:
       return 'hero';
   }

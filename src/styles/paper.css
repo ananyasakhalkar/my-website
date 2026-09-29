@@ -441,3 +441,58 @@
 .rc-remarks p { margin: 0.6cqh 0 0; font-style: italic; font-size: 2.2cqh; }
 .rc-sign { margin: 3cqh 0 0; display: flex; justify-content: flex-end; }
 .rc-sign span { width: 40%; border-bottom: 0.15cqh solid rgb(31 42 68 / 0.5); height: 3cqh; }
+
+/* ---------- Badge back: printed sheet (DESK_SPEC §4.6) ---------- */
+.badge-sheet {
+  container-type: size;
+  position: absolute;
+  background: linear-gradient(180deg, #fdfbf6, var(--paper));
+  color: var(--paper-ink);
+  box-shadow: 0 1.2cqh 3cqh rgb(40 25 10 / 0.3);
+  overflow: hidden;
+  font-family: var(--serif);
+  animation: sheet-in 0.3s ease-out both;
+}
+@keyframes sheet-in { from { opacity: 0; transform: rotateY(-12deg) scale(0.97); } }
+@media (prefers-reduced-motion: reduce) { .badge-sheet { animation: none; } }
+.badge-sheet__band { height: 7cqh; background: var(--band); }
+.badge-sheet__inner {
+  position: absolute;
+  inset: 11cqh 6cqh 4.2cqh;
+  display: flex;
+  flex-direction: column;
+  font-size: 2.3cqh;
+  line-height: 1.48;
+}
+.badge-sheet__dates {
+  margin: 0 0 1cqh;
+  font-family: var(--typewriter);
+  font-weight: 700;
+  font-size: 1.8cqh;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--band);
+}
+.badge-sheet__org { margin: 0; font-weight: 450; font-size: 4.2cqh; line-height: 1.15; }
+.badge-sheet__role { margin: 0.6cqh 0 3cqh; font-style: italic; font-size: 2.6cqh; color: var(--paper-ink-2); }
+.badge-sheet__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.4cqh; }
+.badge-sheet__list li { position: relative; padding-left: 2.4cqh; }
+.badge-sheet__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1.2cqh;
+  width: 1.2cqh;
+  height: 0.2cqh;
+  background: var(--band);
+}
+.badge-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  translate: -50% 0;
+  margin: 0;
+  font: 600 1.6rem/1 Caveat, cursive;
+  color: #fbf6ee;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+}

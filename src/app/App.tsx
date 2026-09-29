@@ -5,6 +5,7 @@ import { ObjectTags } from '../ui/ObjectTag';
 import { ContactOverlay, SpillSync } from '../ui/ContactOverlay';
 import { ViewSync } from './viewStore';
 import { ReportCardView } from '../reader/ReportCardView';
+import { BadgeBackView } from '../reader/BadgeBackView';
 import { useRoute } from './routes';
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
       <SpillSync />
       <ViewSync />
       <ReportCardView />
+      <BadgeBackView />
       <ContactOverlay />
       <Reader />
       <SkipIntro />
