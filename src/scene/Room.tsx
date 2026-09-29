@@ -1,13 +1,13 @@
 import { useEffect, useMemo } from 'react';
 import { ExtrudeGeometry, Path, Shape } from 'three';
-import { cork, floorboards, plaster } from './textures';
+import { floorboards, plaster } from './textures';
 import { ROOM, WALL_DEPTH, WALL_Z, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './constants';
 
 const HALF_W = ROOM.width / 2;
 
-/** Back wall with a real window opening (deep reveal), side walls, floor, ceiling, skirting, corkboard. */
+/** Back wall with a real window opening (deep reveal), side walls, floor, ceiling, skirting. */
 export function Room() {
-  const tex = useMemo(() => ({ plaster: plaster(), floor: floorboards(), cork: cork() }), []);
+  const tex = useMemo(() => ({ plaster: plaster(), floor: floorboards() }), []);
 
   const wallGeo = useMemo(() => {
     const s = new Shape();
@@ -28,11 +28,9 @@ export function Room() {
 
   useEffect(() => {
     tex.floor.repeat.set(2.3, 2);
-    tex.cork.map.repeat.set(3, 2);
-    tex.cork.bump.repeat.set(3, 2);
     return () => {
       wallGeo.dispose();
-      [tex.plaster.map, tex.plaster.bump, tex.floor, tex.cork.map, tex.cork.bump].forEach((t) => t.dispose());
+      [tex.plaster.map, tex.plaster.bump, tex.floor].forEach((t) => t.dispose());
     };
   }, [tex, wallGeo]);
 
@@ -84,25 +82,6 @@ export function Room() {
         <boxGeometry args={[ROOM.width, 0.12, 0.02]} />
         <meshStandardMaterial color="#F2EEE6" roughness={0.5} />
       </mesh>
-
-      {/* Corkboard left of the window (cards and pins arrive in M5). */}
-      <group position={[-1.7, 1.95 - 0.3, WALL_Z + 0.012]}>
-        <mesh receiveShadow>
-          <boxGeometry args={[0.86, 0.56, 0.012]} />
-          <meshStandardMaterial map={tex.cork.map} bumpMap={tex.cork.bump} bumpScale={1.2} roughness={0.95} />
-        </mesh>
-        {[
-          [0, 0.29, 0.9, 0.025],
-          [0, -0.29, 0.9, 0.025],
-          [-0.44, 0, 0.025, 0.6],
-          [0.44, 0, 0.025, 0.6],
-        ].map(([x, y, w, h], i) => (
-          <mesh key={i} position={[x!, y!, 0.006]} castShadow receiveShadow>
-            <boxGeometry args={[w!, h!, 0.025]} />
-            <meshStandardMaterial color="#9C6B45" roughness={0.55} />
-          </mesh>
-        ))}
-      </group>
     </group>
   );
 }

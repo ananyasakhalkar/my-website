@@ -166,3 +166,38 @@ html.bake #plain { display: none; }
 }
 @keyframes rise-in { from { opacity: 0; translate: 0 8px; } }
 @media (prefers-reduced-motion: reduce) { .stain-controls { animation: none; } }
+
+/* ---------- Corkboard view (DOM half) ---------- */
+.board-layer { position: fixed; inset: 0; z-index: 18; pointer-events: none; }
+.board-layer .reader__hud, .board-layer .reader__hud * { pointer-events: auto; }
+.board-tag {
+  position: absolute;
+  translate: -50% -50%;
+  min-width: 64px;
+  min-height: 32px;
+  display: grid;
+  place-items: center;
+  color: transparent; /* the tag printed on the board is what you see */
+  font: 700 0.8rem/1 'Courier Prime', monospace;
+  text-decoration: none;
+  border-radius: 4px;
+  pointer-events: none; /* the 3D tag handles the pointer; this is for keyboard and screen readers */
+}
+.board-tag:focus-visible { outline: 2px solid #f08a55; outline-offset: 3px; }
+.board-caption {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  translate: -50% 0;
+  width: min(760px, calc(100vw - 32px));
+  padding: 12px 18px;
+  display: grid;
+  gap: 4px;
+  background: rgb(251 246 238 / 0.94);
+  color: #2a2019;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.25);
+  font: 400 0.98rem/1.45 Newsreader, Georgia, serif;
+}
+.board-caption b { font: 700 0.8rem/1.2 'Courier Prime', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+.board-caption__hint { font: 600 1.25rem/1 Caveat, cursive; text-align: center; }

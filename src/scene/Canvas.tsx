@@ -21,6 +21,7 @@ import { JournalStack } from '../objects/JournalStack';
 import { ReportCard } from '../objects/ReportCard';
 import { Badges } from '../objects/Badges';
 import { Notebook } from '../objects/Notebook';
+import { Corkboard } from '../objects/Corkboard';
 import { CoffeeSpill } from '../objects/CoffeeSpill';
 
 /** Advances the shared wind once per frame, before anything that consumes it. */
@@ -69,6 +70,7 @@ export function DeskCanvas() {
       <ReportCard />
       <Badges />
       <Notebook />
+      <Corkboard />
       <CoffeeSpill />
       <TagProjector />
       {tierConfig.post && <Effects />}
