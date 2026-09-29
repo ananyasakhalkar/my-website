@@ -15,25 +15,29 @@ import { useRoute } from './routes';
 
 export function App() {
   const onDesk = useRoute((s) => s.route.view === 'desk');
+  const plain = useRoute((s) => s.route.view === 'plain');
   useFocusTrap();
   return (
     <>
       <Hud />
-      <DeskCanvas />
-      <ObjectTags enabled={onDesk} />
-      <ReaderSync />
-      <SpillSync />
-      <ViewSync />
-      <ReportCardView />
-      <BadgeBackView />
-      <NotebookView />
-      <BoardView />
-      <ContactOverlay />
-      <Reader />
-      <SkipIntro />
-      <Hint />
-      <SlowToast />
-      <Loader />
+      {/* The desk is the page's main landmark; hidden (and out of the a11y tree) while the document is shown. */}
+      <main className="desk" aria-label="Ananya Sakhalkar's desk" hidden={plain}>
+        <DeskCanvas />
+        <ObjectTags enabled={onDesk} />
+        <ReaderSync />
+        <SpillSync />
+        <ViewSync />
+        <ReportCardView />
+        <BadgeBackView />
+        <NotebookView />
+        <BoardView />
+        <ContactOverlay />
+        <Reader />
+        <SkipIntro />
+        <Hint />
+        <SlowToast />
+        <Loader />
+      </main>
     </>
   );
 }

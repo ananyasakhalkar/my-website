@@ -9,8 +9,10 @@ import { params } from './app/params';
 import './styles/app.css';
 import './styles/paper.css';
 import { useDesk } from './app/store';
+import { useSpill } from './objects/spillStore';
 
-if (import.meta.env.DEV) (window as unknown as { __desk: typeof useDesk }).__desk = useDesk;
+// Dev-only handles for QA scripts.
+if (import.meta.env.DEV) Object.assign(window, { __desk: useDesk, __spill: useSpill });
 
 const plain = document.getElementById('plain');
 const root = document.getElementById('app');

@@ -1,11 +1,12 @@
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { PerformanceMonitor } from '@react-three/drei';
 import { Bloom, EffectComposer, Noise, ToneMapping, Vignette } from '@react-three/postprocessing';
 import { BlendFunction, ToneMappingMode } from 'postprocessing';
-import { AgXToneMapping, PCFShadowMap } from 'three';
+import { AgXToneMapping, PCFShadowMap, WebGLRenderTarget } from 'three';
 import { tierConfig } from '../app/quality';
 import { useDesk } from '../app/store';
 import { navigate, useRoute } from '../app/routes';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { stepWind } from './wind';
 import { CameraRig } from './CameraRig';
 import { Lighting } from './Lighting';
@@ -30,12 +31,30 @@ import { DayNightDriver } from './dayNight';
 import { CoffeeSpill } from '../objects/CoffeeSpill';
 
 /** Signals the first rendered frame (the loader finishes on it). */
-function FirstFrame() {
+function FirstFrame({ post }: { post: boolean }) {
   const done = useRef(false);
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
   useFrame(() => {
     if (done.current) return;
     done.current = true;
     requestAnimationFrame(() => useDesk.getState().setReady());
+    // Start compiling every material now (in parallel where the driver supports it) so the first spill,
+    // page flight or night switch doesn't stall on it. With post-processing the scene renders into a render
+    // target (linear output, no renderer tone mapping), so compile with one bound or the variants differ.
+    // (Not compileAsync: its readiness poll throws if a material is disposed meanwhile.)
+    const compile = () => {
+      const prev = gl.getRenderTarget();
+      const rt = post ? new WebGLRenderTarget(1, 1) : null;
+      gl.setRenderTarget(rt);
+      gl.compile(scene, camera);
+      gl.setRenderTarget(prev);
+      rt?.dispose();
+    };
+    compile();
+    // Again once late materials exist (the spill waits for its text texture, the mug for its label).
+    setTimeout(compile, 2500);
   });
   return null;
 }
@@ -63,35 +82,73 @@ function FpsWatch() {
   return null;
 }
 
+/** Throttle to ~30 fps while the window isn't focused (hidden tabs pause on their own). */
+function BlurThrottle() {
+  const setFrameloop = useThree((s) => s.setFrameloop);
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    let timer = 0;
+    const blur = () => {
+      setFrameloop('demand');
+      timer = window.setInterval(() => invalidate(), 33);
+    };
+    const focus = () => {
+      window.clearInterval(timer);
+      setFrameloop('always');
+    };
+    window.addEventListener('blur', blur);
+    window.addEventListener('focus', focus);
+    return () => {
+      window.removeEventListener('blur', blur);
+      window.removeEventListener('focus', focus);
+      window.clearInterval(timer);
+    };
+  }, [setFrameloop, invalidate]);
+  return null;
+}
+
 /** Advances the shared wind once per frame, before anything that consumes it. */
 function WindDriver() {
   useFrame((_, dt) => stepWind(dt), -1);
   return null;
 }
 
-function Effects() {
+function Effects({ lite }: { lite: boolean }) {
+  const bloom = tierConfig.bloom && !lite;
   return (
-    <EffectComposer multisampling={4}>
-      {tierConfig.bloom ? <Bloom mipmapBlur luminanceThreshold={0.9} intensity={0.35} /> : <></>}
+    <EffectComposer multisampling={lite ? 0 : 4}>
+      {bloom ? <Bloom mipmapBlur luminanceThreshold={0.9} intensity={0.35} /> : <></>}
       <ToneMapping mode={ToneMappingMode.AGX} />
       <Vignette offset={0.3} darkness={0.5} />
-      {tierConfig.bloom ? <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.08} /> : <></>}
+      {bloom ? <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.08} /> : <></>}
     </EffectComposer>
   );
 }
 
 export function DeskCanvas() {
   const plain = useRoute((s) => s.route.view === 'plain');
+  // Auto-degrade (DESK_SPEC §10): lower the pixel ratio first, then the costly effects. The composer itself
+  // stays: removing it re-targets every material, and recompiling them all freezes D3D for seconds.
+  const [dpr, setDpr] = useState(tierConfig.dpr);
+  const [lite, setLite] = useState(false);
+  const post = tierConfig.post;
+  const decline = () => {
+    if (dpr > 1) setDpr((d) => Math.max(1, d - 0.5));
+    else setLite(true);
+  };
   return (
     <Canvas
       frameloop={plain ? 'never' : 'always'}
       shadows={{ type: PCFShadowMap }}
-      dpr={[1, tierConfig.dpr]}
+      dpr={[1, dpr]}
       gl={{ antialias: !tierConfig.post, powerPreference: 'high-performance' }}
       camera={{ fov: 42, near: 0.05, far: 90, position: [0, 1.45, 1.75] }}
-      onCreated={({ gl }) => {
+      onCreated={({ gl, scene }) => {
         gl.toneMapping = AgXToneMapping;
         gl.toneMappingExposure = 1;
+        // Production: skip per-program shader diagnostics (driver notes are not errors; also faster).
+        gl.debug.checkShaderErrors = import.meta.env.DEV;
+        if (import.meta.env.DEV) Object.assign(window, { __gl: gl, __scene: scene });
         // A lost context that doesn't come back within 3 s falls back to the plain document.
         let timer = 0;
         gl.domElement.addEventListener('webglcontextlost', (e) => {
@@ -102,8 +159,10 @@ export function DeskCanvas() {
       }}
     >
       <WindDriver />
-      <FirstFrame />
+      <FirstFrame post={post} />
       <FpsWatch />
+      <BlurThrottle />
+      <PerformanceMonitor onDecline={decline} flipflops={3} />
       <DayNightDriver />
       <CameraRig />
       <Lighting />
@@ -125,7 +184,7 @@ export function DeskCanvas() {
       <Lamp />
       <CoffeeSpill />
       <TagProjector />
-      {tierConfig.post && <Effects />}
+      {post && <Effects lite={lite} />}
     </Canvas>
   );
 }

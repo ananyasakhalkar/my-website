@@ -240,9 +240,7 @@ html.bake #plain { display: none; }
 /* Plain mode (#/plain): the prerendered document, the desk paused and hidden */
 html.desk-on.plain-mode, html.desk-on.plain-mode body { height: auto; overflow: auto; background: var(--bg); }
 html.desk-on.plain-mode #plain { display: block; }
-html.desk-on.plain-mode #app > div:first-child,
-html.desk-on.plain-mode .tags,
-html.desk-on.plain-mode .skip-intro { display: none; }
+html.desk-on #app > .desk { position: fixed; inset: 0; }
 
 /* Keyboard / screen-reader proxies over each desk object */
 .desk-proxies { position: absolute; inset: 0; pointer-events: none; }

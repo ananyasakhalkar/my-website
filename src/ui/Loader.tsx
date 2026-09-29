@@ -80,6 +80,7 @@ const HINT_KEY = 'desk-hint-seen';
 export function Hint() {
   const introDone = useDesk((s) => s.introDone);
   const hovered = useDesk((s) => s.hovered);
+  const onDesk = useRoute((s) => s.route.view === 'desk');
   const [seen, setSeen] = useState(() => {
     try {
       return sessionStorage.getItem(HINT_KEY) === '1';
@@ -101,7 +102,7 @@ export function Hint() {
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
-  if (seen || !introDone) return null;
+  if (seen || !introDone || !onDesk) return null;
   return (
     <p className="hint" aria-hidden="true">
       <span className="hint__arrow">↙</span> go on — pick something up

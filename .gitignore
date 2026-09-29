@@ -10,3 +10,4 @@ _screenshots/
 *.tmp
 dist/
 .prerender/
+*.tsbuildinfo

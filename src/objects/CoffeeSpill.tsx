@@ -116,17 +116,17 @@ function Pour() {
     const on = phase === 'spilling' && t > S.pourStart && t < S.pourEnd + 200;
     const idx = res.tube.index!.count;
     if (tube.current) {
-      tube.current.visible = on;
+      // Kept in the scene (drawing nothing when off) so its shader compiles at load, not mid-spill.
+      if (!on) res.tube.setDrawRange(0, 0);
       const grow = smooth(S.pourStart, S.pourStart + 260, t);
       const drain = smooth(S.pourEnd - 350, S.pourEnd, t);
       const a = Math.floor(drain * idx / 6) * 6;
       const b = Math.floor(grow * idx / 6) * 6;
-      res.tube.setDrawRange(a, Math.max(0, b - a));
+      if (on) res.tube.setDrawRange(a, Math.max(0, b - a));
       res.mat.opacity = 1 - smooth(S.pourEnd - 100, S.pourEnd + 200, t);
     }
     const m = inst.current;
     if (!m) return;
-    m.visible = phase === 'spilling' && t < S.pourEnd + 400;
     res.drops.forEach((d, i) => {
       const u = (t - d.t0) / 1000;
       if (u < 0 || u > 0.6) {
@@ -149,8 +149,8 @@ function Pour() {
 
   return (
     <>
-      <mesh ref={tube} geometry={res.tube} material={res.mat} visible={false} renderOrder={13} />
-      <instancedMesh ref={inst} args={[res.dropGeo, undefined, res.drops.length]} visible={false} renderOrder={13}>
+      <mesh ref={tube} geometry={res.tube} material={res.mat} renderOrder={13} frustumCulled={false} />
+      <instancedMesh ref={inst} args={[res.dropGeo, undefined, res.drops.length]} renderOrder={13} frustumCulled={false}>
         <meshStandardMaterial color="#2B170B" roughness={0.1} envMapIntensity={2} />
       </instancedMesh>
     </>

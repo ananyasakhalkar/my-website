@@ -1,12 +1,12 @@
 // Bakes each reader page to a WebP texture from the SAME React page component (DESK_SPEC §4.2), so the
 // 3D paper in flight shows exactly what the crisp DOM page shows at rest.
 // Usage: npm run bake   (uses the system Chrome; set CHROME_PATH to override)
-import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { createServer } from 'vite';
 import { chromium } from 'playwright-core';
+import { contentHash } from './page-hash.mjs';
 
 const OUT = resolve('public/assets/pages');
 const W = 1024;
@@ -15,15 +15,6 @@ const PAGES = [
   { kind: 'projects', count: 10 },
   { kind: 'publications', count: 4 },
 ];
-
-/** Hash of everything that affects how a page looks, stored next to the textures. */
-export async function contentHash() {
-  const files = ['src/styles/paper.css', 'src/reader/pages/ProjectPage.tsx', 'src/reader/pages/PublicationPage.tsx'];
-  for (const f of await readdir('src/content')) files.push(join('src/content', f));
-  const h = createHash('sha256');
-  for (const f of files.sort()) h.update(await readFile(f));
-  return h.digest('hex').slice(0, 16);
-}
 
 const chrome =
   process.env.CHROME_PATH ??
