@@ -22,6 +22,8 @@ import { ReportCard } from '../objects/ReportCard';
 import { Badges } from '../objects/Badges';
 import { Notebook } from '../objects/Notebook';
 import { Corkboard } from '../objects/Corkboard';
+import { Lamp } from '../objects/Lamp';
+import { DayNightDriver } from './dayNight';
 import { CoffeeSpill } from '../objects/CoffeeSpill';
 
 /** Advances the shared wind once per frame, before anything that consumes it. */
@@ -54,6 +56,7 @@ export function DeskCanvas() {
       }}
     >
       <WindDriver />
+      <DayNightDriver />
       <CameraRig />
       <Lighting />
       <Room />
@@ -71,6 +74,7 @@ export function DeskCanvas() {
       <Badges />
       <Notebook />
       <Corkboard />
+      <Lamp />
       <CoffeeSpill />
       <TagProjector />
       {tierConfig.post && <Effects />}

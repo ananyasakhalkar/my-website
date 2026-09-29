@@ -1,14 +1,38 @@
 import { useEffect, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Color, type HemisphereLight } from 'three';
 import { Environment, Lightformer } from '@react-three/drei';
 import type { DirectionalLight } from 'three';
 import { SUN_COLOR, SUN_DIR } from './constants';
 import { tierConfig } from '../app/quality';
+import { nightMix } from './dayNight';
+
+const SKY_DAY = new Color('#C9DDF5');
+const SKY_NIGHT = new Color('#2A3658');
+const GROUND_DAY = new Color('#8A6448');
+const GROUND_NIGHT = new Color('#2B2320');
 
 const TARGET: [number, number, number] = [0.05, 0.76, -0.25];
 
 /** Golden-hour key light through the window, cool sky fill, and a procedural (network-free) environment. */
 export function Lighting() {
   const sun = useRef<DirectionalLight>(null);
+  const bounce = useRef<DirectionalLight>(null);
+  const hemi = useRef<HemisphereLight>(null);
+  const scene = useThree((s) => s.scene);
+
+  // Night: the sun sets to nothing, the sky fill turns cool and dim, the room's bounce fades.
+  useFrame(() => {
+    const n = nightMix();
+    if (sun.current) sun.current.intensity = 6.2 * (1 - n);
+    if (bounce.current) bounce.current.intensity = 1.1 * (1 - n);
+    if (hemi.current) {
+      hemi.current.intensity = 1.0 - n * 0.8;
+      hemi.current.color.lerpColors(SKY_DAY, SKY_NIGHT, n);
+      hemi.current.groundColor.lerpColors(GROUND_DAY, GROUND_NIGHT, n);
+    }
+    scene.environmentIntensity = 0.85 - n * 0.68;
+  });
 
   useEffect(() => {
     const l = sun.current;
@@ -43,9 +67,9 @@ export function Lighting() {
         shadow-bias={-0.0003}
         shadow-normalBias={0.015}
       />
-      <hemisphereLight args={['#C9DDF5', '#8A6448', 1.0]} />
+      <hemisphereLight ref={hemi} args={['#C9DDF5', '#8A6448', 1.0]} />
       {/* Warm bounce from the sunlit desk and floor, aimed upward so it lifts the walls but not the desk top */}
-      <directionalLight position={[0.4, -1.5, 2.5]} color="#FFC08A" intensity={1.1} />
+      <directionalLight ref={bounce} position={[0.4, -1.5, 2.5]} color="#FFC08A" intensity={1.1} />
       <Environment resolution={64} environmentIntensity={0.85}>
         {/* The window: bright sky, warm toward the sun side */}
         <Lightformer form="rect" intensity={2.2} color="#DCE8F6" position={[0, 1.7, -3]} scale={[3, 2, 1]} />

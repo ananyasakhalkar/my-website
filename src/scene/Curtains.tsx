@@ -6,6 +6,11 @@ import { CURTAIN, SUN_COLOR, SUN_DIR, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './c
 import { linen } from './textures';
 import { windUniforms } from './wind';
 import { tierConfig } from '../app/quality';
+import { useFrame } from '@react-three/fiber';
+import { nightMix } from './dayNight';
+
+const SUN = new Color(SUN_COLOR);
+const MOON = new Color('#8FA6D8');
 
 /**
  * Sheer linen panel. Displacement, normals and back-lit translucency are injected into MeshStandardMaterial,
@@ -31,6 +36,7 @@ function makeCurtainMaterial(innerEdge: 0 | 1, phase: number, map: ReturnType<ty
     uSunAmount: { value: 1 },
     uWin: { value: [WIN_X0, WIN_X1, WIN_Y0, WIN_Y1] },
   };
+  m.userData.uniforms = uniforms;
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader
@@ -92,6 +98,16 @@ export function Curtains() {
       right: makeCurtainMaterial(0, 2.1, map),
     };
   }, [sx, sy]);
+
+  useFrame(() => {
+    const n = nightMix();
+    for (const m of [res.left, res.right]) {
+      const u = m.userData.uniforms as { uSunColor: { value: Color }; uSunAmount: { value: number } } | undefined;
+      if (!u) continue;
+      u.uSunColor.value.lerpColors(SUN, MOON, n);
+      u.uSunAmount.value = 1 - n * 0.75;
+    }
+  });
 
   useEffect(
     () => () => {

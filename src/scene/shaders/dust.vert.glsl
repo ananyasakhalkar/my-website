@@ -8,6 +8,9 @@ uniform vec3 uBoxSize;
 uniform vec3 uSunDir;
 uniform vec4 uWin;          // x0, x1, y0, y1 of the window opening
 uniform float uWallZ;
+uniform float uNight;
+uniform vec3 uLampPos;
+uniform vec3 uLampDir;
 attribute vec3 aSeed;
 varying float vLit;
 
@@ -28,7 +31,8 @@ void main() {
   float inWin = smoothstep(uWin.x, uWin.x + soft, hit.x) * (1.0 - smoothstep(uWin.y - soft, uWin.y, hit.x))
               * smoothstep(uWin.z, uWin.z + soft, hit.y) * (1.0 - smoothstep(uWin.w - soft, uWin.w, hit.y));
   float twinkle = 0.65 + 0.35 * sin(uTime * (0.8 + aSeed.x) + s.z);
-  vLit = inWin * twinkle;
+  float cone = smoothstep(0.82, 0.9, dot(normalize(p - uLampPos), uLampDir));
+  vLit = mix(inWin, cone * 0.8, uNight) * twinkle;
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_PointSize = uPx * (0.6 + aSeed.y * 1.1) / -mv.z;

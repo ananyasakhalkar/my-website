@@ -4,6 +4,8 @@ import { CatmullRomCurve3, DoubleSide, Shape, TubeGeometry, Vector3, type Group 
 import { FRAME_Z, SASH_OPEN, WALL_DEPTH, WALL_Z, WIN, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './constants';
 import { wind } from './wind';
 import { seeded } from './textures';
+import { useRoute } from '../app/routes';
+import { HitProxy } from '../objects/HitProxy';
 
 const FRAME = '#F2EEE6';
 const BAR = 0.022; // glazing bar width
@@ -90,13 +92,37 @@ function Plant() {
   );
   useEffect(() => () => vines.forEach((v) => v.stem.dispose()), [vines]);
 
+  // Easter egg (DESK_SPEC §4.10): a click makes the leaves shiver, and once per visit a leaf drifts down.
+  const poke = useRef({ t0: -Infinity, dropped: false, dropT0: -Infinity });
+  const falling = useRef<Group>(null);
+  const onDesk = useRoute((s) => s.route.view === 'desk');
+  const shake = () => {
+    const now = performance.now();
+    poke.current.t0 = now;
+    if (!poke.current.dropped) {
+      poke.current.dropped = true;
+      poke.current.dropT0 = now;
+    }
+  };
+
   useFrame(() => {
     const sway = (0.05 + wind.gust * 0.12) * wind.motion;
+    const since = (performance.now() - poke.current.t0) / 1000;
+    const shiver = since < 1.2 ? Math.sin(since * 38) * 0.09 * (1 - since / 1.2) * wind.motion : 0;
     vineRefs.current.forEach((g, i) => {
       if (!g) return;
-      g.rotation.x = -Math.sin(wind.time * 1.1 + i * 1.7) * sway * 0.5 - wind.gust * 0.12 * wind.motion;
-      g.rotation.z = Math.sin(wind.time * 0.8 + i) * sway * 0.35;
+      g.rotation.x = -Math.sin(wind.time * 1.1 + i * 1.7) * sway * 0.5 - wind.gust * 0.12 * wind.motion + shiver;
+      g.rotation.z = Math.sin(wind.time * 0.8 + i) * sway * 0.35 - shiver * 0.6;
     });
+    // The falling leaf: flutters down from the crown onto the sill in front of the pot, then stays.
+    const f = falling.current;
+    if (f) {
+      const u = Math.min(1, (performance.now() - poke.current.dropT0) / 2600);
+      f.visible = poke.current.dropped;
+      const e = 1 - (1 - u) ** 2;
+      f.position.set(0.05 + Math.sin(u * 9) * 0.02 * (1 - u), 0.17 - e * 0.165, 0.03 + e * 0.07);
+      f.rotation.set(-Math.PI / 2 + (1 - u) * Math.sin(u * 14) * 0.9, u * 2.2, (1 - u) * Math.cos(u * 11) * 0.7);
+    }
   });
 
   const leafMat = (i: number) => (
@@ -113,6 +139,13 @@ function Plant() {
         <cylinderGeometry args={[0.061, 0.061, 0.006, 28]} />
         <meshStandardMaterial color="#3B2A1E" roughness={1} />
       </mesh>
+      <group ref={falling} visible={false}>
+        <mesh scale={0.9} castShadow>
+          <shapeGeometry args={[leafShape]} />
+          {leafMat(1)}
+        </mesh>
+      </group>
+      <HitProxy id="plant" size={[0.16, 0.24, 0.16]} position={[0, 0.1, 0.02]} enabled={onDesk} onActivate={shake} />
       <group ref={(g) => { vineRefs.current[0] = g; }}>
         {crown.map((l, i) => (
           <group key={i} rotation-y={l.a} position-y={l.lift}>

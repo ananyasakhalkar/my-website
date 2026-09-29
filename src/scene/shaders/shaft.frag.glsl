@@ -1,6 +1,7 @@
 uniform float uTime;
 uniform float uOpacity;
 uniform vec3 uColor;
+uniform float uNight;
 varying vec2 vLocal;
 varying vec3 vWorld;
 
@@ -10,6 +11,6 @@ void main() {
   float n = fbm3(vWorld * vec3(2.2, 2.2, 2.2) + vec3(0.0, uTime * 0.03, -uTime * 0.06));
   // Fade out near the camera: in close-up poses we'd otherwise be standing inside the haze.
   float near = smoothstep(0.6, 1.6, distance(cameraPosition, vWorld));
-  float a = uOpacity * edge * along * near * (0.45 + 0.9 * n);
+  float a = uOpacity * edge * along * near * (0.45 + 0.9 * n) * (1.0 - uNight);
   gl_FragColor = vec4(uColor * a, a);
 }

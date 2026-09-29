@@ -5,6 +5,8 @@ import dustVert from './shaders/dust.vert.glsl?raw';
 import dustFrag from './shaders/dust.frag.glsl?raw';
 import { SUN_DIR, WALL_Z, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './constants';
 import { seeded } from './textures';
+import { dayNightUniforms } from './dayNight';
+import { LAMP } from '../objects/Lamp';
 import { wind, windUniforms } from './wind';
 import { tierConfig } from '../app/quality';
 
@@ -42,6 +44,9 @@ export function Dust() {
         uSunDir: { value: SUN_DIR },
         uWin: { value: [WIN_X0, WIN_X1, WIN_Y0, WIN_Y1] },
         uWallZ: { value: WALL_Z },
+        uNight: dayNightUniforms.uNight,
+        uLampPos: { value: LAMP.head },
+        uLampDir: { value: LAMP.target.clone().sub(LAMP.head).normalize() },
         uColor: { value: new Color('#FFE2B8') },
       },
       transparent: true,

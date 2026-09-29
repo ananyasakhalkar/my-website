@@ -5,6 +5,7 @@ import shaftVert from './shaders/shaft.vert.glsl?raw';
 import shaftFrag from './shaders/shaft.frag.glsl?raw';
 import { DESK_TOP, SUN_DIR, WALL_Z } from './constants';
 import { windUniforms } from './wind';
+import { dayNightUniforms } from './dayNight';
 
 /** Where each shaft enters (on the window plane) and how wide it is. */
 const SHAFTS: { x: number; y: number; width: number; opacity: number }[] = [
@@ -32,6 +33,7 @@ export function Shafts() {
           uWidth: { value: s.width },
           uOpacity: { value: s.opacity },
           uColor: { value: new Color('#FFD9A8') },
+          uNight: dayNightUniforms.uNight,
         },
         transparent: true,
         depthWrite: false,

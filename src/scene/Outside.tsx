@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Color, ShaderMaterial, Vector3, type Mesh } from 'three';
+import { Color, ShaderMaterial, Vector3, type Mesh, type MeshBasicMaterial } from 'three';
 import skyVert from './shaders/sky.vert.glsl?raw';
 import skyFrag from './shaders/sky.frag.glsl?raw';
 import { foliage, rooftops } from './textures';
 import { wind } from './wind';
+import { dayNightUniforms, nightMix } from './dayNight';
 
 /** A hazy tree line along the horizon plus one nearer canopy overhanging from the left. */
 const TREES: { x: number; y: number; z: number; h: number; seed: number; warm: boolean; haze: number }[] = [
@@ -32,6 +33,7 @@ export function Outside() {
         uHorizon: { value: new Color('#FFB27A').multiplyScalar(1.25) },
         uGlow: { value: new Color('#FFB066') },
         uSunPos: { value: new Vector3(-14, 7, -30) },
+        uNight: dayNightUniforms.uNight,
       },
       depthWrite: false,
     });
@@ -40,8 +42,15 @@ export function Outside() {
     return { sky, trees, roofs };
   }, []);
   const treeRefs = useRef<(Mesh | null)[]>([]);
+  const dim = useRef<MeshBasicMaterial[]>([]);
+  const keep = (m: MeshBasicMaterial | null) => {
+    if (m && !dim.current.includes(m)) dim.current.push(m);
+  };
 
   useFrame(() => {
+    // Night: the outside world falls into dusk.
+    const k = 1 - nightMix() * 0.9;
+    for (const m of dim.current) m.color.setScalar(k);
     const t = wind.time;
     treeRefs.current.forEach((m, i) => {
       if (m) m.rotation.z = (Math.sin(t * 0.55 + i * 1.3) * 0.012 + wind.gust * 0.02) * wind.motion;
@@ -64,13 +73,14 @@ export function Outside() {
       </mesh>
       <mesh position={[0, 0.3, -21]} renderOrder={-9}>
         <planeGeometry args={[60, 15]} />
-        <meshBasicMaterial map={res.roofs} transparent depthWrite={false} color="#F4C9A8" />
+        <meshBasicMaterial ref={keep} map={res.roofs} transparent depthWrite={false} color="#F4C9A8" />
       </mesh>
       {TREES.map((t, i) => (
         <group key={i} position={[t.x, t.y, t.z]}>
           <mesh ref={(m) => { treeRefs.current[i] = m; }} renderOrder={-8 + i}>
             <planeGeometry args={[t.h * 0.95, t.h]} />
             <meshBasicMaterial
+              ref={keep}
               map={res.trees[i]}
               transparent
               depthWrite={false}
@@ -82,7 +92,7 @@ export function Outside() {
       {/* Hedge line below the sill, catching the low sun */}
       <mesh position={[0, -1.6, -6]} renderOrder={-7}>
         <planeGeometry args={[30, 4]} />
-        <meshBasicMaterial color="#A7A565" />
+        <meshBasicMaterial ref={keep} color="#A7A565" />
       </mesh>
     </group>
   );
