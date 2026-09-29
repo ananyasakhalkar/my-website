@@ -6,6 +6,7 @@ import { ContactOverlay, SpillSync } from '../ui/ContactOverlay';
 import { ViewSync } from './viewStore';
 import { ReportCardView } from '../reader/ReportCardView';
 import { BadgeBackView } from '../reader/BadgeBackView';
+import { NotebookView } from '../reader/NotebookView';
 import { useRoute } from './routes';
 
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
       <ViewSync />
       <ReportCardView />
       <BadgeBackView />
+      <NotebookView />
       <ContactOverlay />
       <Reader />
       <SkipIntro />
