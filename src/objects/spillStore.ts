@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { prefersReducedMotion } from '../app/capabilities';
 import { params } from '../app/params';
+import { sfx } from '../audio/sound';
 
 export type SpillPhase = 'upright' | 'spilling' | 'spilled' | 'refilling';
 
@@ -42,6 +43,8 @@ export function startSpill() {
   // Reduced motion: straight to the end state (with a short fade handled by the renderers).
   const t0 = prefersReducedMotion() ? now() - S.total + 300 : now();
   useSpill.setState({ phase: 'spilling', t0, stained: true });
+  setTimeout(() => sfx('clink'), Math.max(0, t0 + S.tipEnd - now()));
+  setTimeout(() => sfx('pour'), Math.max(0, t0 + S.pourStart - now()));
 }
 
 /** Esc during the sequence jumps to the end state; direct visits to #/contact start there too. */

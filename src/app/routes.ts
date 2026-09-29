@@ -20,6 +20,8 @@ export type Route =
 const clampPage = (n: number, max: number) => Math.min(Math.max(1, Math.floor(n) || 1), max);
 
 export function parseHash(hash: string): Route {
+  // Anchors inside the plain document (#research, #contact…) keep you in the document.
+  if (hash.length > 1 && !hash.startsWith('#/')) return { view: 'plain' };
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   const [head, arg] = parts;
   switch (head) {

@@ -201,3 +201,116 @@ html.bake #plain { display: none; }
 }
 .board-caption b { font: 700 0.8rem/1.2 'Courier Prime', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
 .board-caption__hint { font: 600 1.25rem/1 Caveat, cursive; text-align: center; }
+
+/* ---------- HUD (DESK_SPEC §5) ---------- */
+.hud {
+  position: fixed;
+  inset: 12px 16px auto 16px;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.hud > * { pointer-events: auto; }
+.hud-mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgb(251 246 238 / 0.82);
+  color: #2a2019;
+  font: 400 1.2rem/1 Newsreader, Georgia, serif;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.15);
+}
+.hud-mark span { color: #c2410c; }
+.hud-mark:focus-visible { outline: 2px solid #c2410c; outline-offset: 3px; }
+.hud-right { display: flex; gap: 8px; }
+.hud .hud-btn { display: inline-flex; align-items: center; text-decoration: none; background: rgb(251 246 238 / 0.82); }
+.hud-icon { width: 44px; padding: 0; justify-content: center; font-size: 1.05rem; }
+.reader__hud { top: 68px; }
+@media (max-width: 560px) {
+  .hud-right .hud-btn:first-child { font-size: 0.8rem; padding: 0 10px; }
+  .hud-right a[href='resume.pdf'] { display: none; }
+}
+.open-desk { position: fixed; right: 16px; bottom: 16px; z-index: 40; }
+
+/* Plain mode (#/plain): the prerendered document, the desk paused and hidden */
+html.desk-on.plain-mode, html.desk-on.plain-mode body { height: auto; overflow: auto; background: var(--bg); }
+html.desk-on.plain-mode #plain { display: block; }
+html.desk-on.plain-mode #app > div:first-child,
+html.desk-on.plain-mode .tags,
+html.desk-on.plain-mode .skip-intro { display: none; }
+
+/* Keyboard / screen-reader proxies over each desk object */
+.desk-proxies { position: absolute; inset: 0; pointer-events: none; }
+.desk-proxy {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 128px;
+  height: 84px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  pointer-events: none; /* the pointer goes to the 3D object; this is for keyboard and screen readers */
+}
+.desk-proxy:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(255 214 150 / 0.9), 0 0 24px 8px rgb(255 190 120 / 0.55);
+}
+
+/* Loader: a sheet of warm paper; her name is written as the scene loads */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.5), transparent 60%),
+    #f4ecdc;
+  transition: transform 0.5s cubic-bezier(0.5, 0, 0.3, 1);
+}
+.loader.is-leaving { transform: translateY(105%); }
+.loader__sig { width: min(720px, 86vw); height: auto; overflow: visible; }
+.loader__sig text { font: 600 128px Caveat, 'Segoe Print', cursive; fill: #23304f; }
+.loader__sig rect { transition: width 0.35s ease-out; }
+.loader__nib { fill: #23304f; transition: cx 0.35s ease-out; }
+.loader__slow { position: absolute; bottom: 12vh; margin: 0; font: 600 1.4rem/1.4 Caveat, cursive; color: #4b4f5c; display: flex; gap: 12px; align-items: center; }
+@media (prefers-reduced-motion: reduce) { .loader { transition: none; } }
+
+/* Hint and offers */
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  translate: -50% 0;
+  z-index: 12;
+  margin: 0;
+  font: 600 1.55rem/1 Caveat, cursive;
+  color: #fbf6ee;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.55);
+  animation: rise-in 0.4s ease-out both;
+}
+.hint__arrow { display: inline-block; margin-right: 4px; }
+.toast-offer {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 14px;
+  background: #fbf6ee;
+  color: #2a2019;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.25);
+  font: 400 0.95rem/1.4 Geist, system-ui, sans-serif;
+}
+.hud-icon.is-off { opacity: 0.6; text-decoration: line-through; }

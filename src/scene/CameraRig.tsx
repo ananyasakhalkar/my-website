@@ -74,7 +74,15 @@ export function CameraRig() {
 
   useFrame((state, dt) => {
     const m = move.current!;
-    if (m.start === null) m.start = state.clock.elapsedTime;
+    if (m.start === null) {
+      // Hold the intro's first frame until the loader has slid away.
+      if (!introDone && !useDesk.getState().loaderDone) {
+        camera.position.copy(m.from.pos);
+        camera.lookAt(m.from.look);
+        return;
+      }
+      m.start = state.clock.elapsedTime;
+    }
     const isIntro = !introDone;
     const elapsed = isIntro && params.introAt !== null ? params.introAt : state.clock.elapsedTime - m.start;
     const p = isIntro && skipRequested ? 1 : MathUtils.clamp(elapsed / m.duration, 0, 1);

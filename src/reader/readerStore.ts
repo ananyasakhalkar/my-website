@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import { prefersReducedMotion } from '../app/capabilities';
 import type { ReaderKind } from './kinds';
+import { sfx } from '../audio/sound';
 
 export type { ReaderKind };
 export type Phase = 'closed' | 'opening' | 'rest' | 'drag' | 'settle' | 'turning' | 'closing';
@@ -53,6 +54,7 @@ const now = () => performance.now();
 
 export function openReader(kind: ReaderKind, page: number) {
   useReader.setState({ kind, page, phase: 'opening', t0: now(), leaving: null, drag: 0, dragVel: 0, pile: [] });
+  sfx('rustle');
 }
 
 /** Turn to `page`. Pages going forward land on the pile; going back, the page is taken from the pile. */
@@ -69,6 +71,7 @@ export function turnTo(page: number) {
     pile = pile.filter((p) => p.page !== page);
   }
   useReader.setState({ page, phase: 'turning', t0: now(), leaving: { page: s.page, dir }, pile });
+  sfx('swoosh');
 }
 
 export function closeReader() {

@@ -8,6 +8,9 @@ import { BakeView } from './reader/BakeView';
 import { params } from './app/params';
 import './styles/app.css';
 import './styles/paper.css';
+import { useDesk } from './app/store';
+
+if (import.meta.env.DEV) (window as unknown as { __desk: typeof useDesk }).__desk = useDesk;
 
 const plain = document.getElementById('plain');
 const root = document.getElementById('app');

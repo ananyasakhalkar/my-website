@@ -6,6 +6,7 @@ import { useFrame } from '@react-three/fiber';
 import { create } from 'zustand';
 import { params } from '../app/params';
 import { prefersReducedMotion } from '../app/capabilities';
+import { sfx } from '../audio/sound';
 
 const KEY = 'desk-time';
 
@@ -30,6 +31,7 @@ export const useDayNight = create<{ night: boolean; toggle: () => void }>((set, 
       // session-only choice
     }
     set({ night });
+    sfx('click');
     transition.from = dayNightUniforms.uNight.value;
     transition.t0 = performance.now();
   },

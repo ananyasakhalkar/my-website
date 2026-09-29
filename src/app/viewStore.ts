@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { create } from 'zustand';
 import { prefersReducedMotion } from './capabilities';
 import { useRoute, type Route } from './routes';
+import { sfx } from '../audio/sound';
 
 export type ViewKey = 'report-card' | 'experience' | 'about' | 'board';
 export type ViewPhase = 'closed' | 'opening' | 'rest' | 'closing';
@@ -39,6 +40,7 @@ export function ViewSync() {
     const s = useView.getState();
     if (next && (s.key !== next || s.phase === 'closing' || s.phase === 'closed')) {
       useView.setState({ key: next, phase: 'opening', t0: performance.now() });
+      sfx(next === 'board' ? 'tick' : 'rustle');
     } else if (!next && s.key && s.phase !== 'closing') {
       useView.setState({ phase: 'closing', t0: performance.now() });
     }
