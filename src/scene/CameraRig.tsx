@@ -1,24 +1,14 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { MathUtils, Vector3, type PerspectiveCamera } from 'three';
 import { useDesk } from '../app/store';
+import { useRoute } from '../app/routes';
 import { params } from '../app/params';
 import { isTouch, prefersReducedMotion } from '../app/capabilities';
-
-interface Pose { pos: Vector3; look: Vector3; fov: number }
-const pose = (pos: [number, number, number], look: [number, number, number], fov: number): Pose => ({
-  pos: new Vector3(...pos),
-  look: new Vector3(...look),
-  fov,
-});
-
-/** Hero framing: whole desk, window and curtains behind it (tuned from DESK_SPEC §1 by eye; see changelog). */
-const HERO_WIDE = pose([0.2, 1.62, 1.62], [0.02, 0.97, -0.55], 46);
-const HERO_PORTRAIT = pose([0, 1.9, 2.2], [0, 1.2, -0.6], 64);
-/** Intro starts close on the open window. */
-const INTRO = pose([0, 1.5, -0.05], [0, 1.45, -1.2], 40);
+import { INTRO_POSE, POSES, poseForRoute, pose, resolvePose, type Pose, type PoseKey } from './poses';
 
 const inOutQuart = (t: number) => (t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2);
+const inOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
 const VISITED = 'desk-visited';
 function returning(): boolean {
@@ -31,67 +21,92 @@ function returning(): boolean {
   }
 }
 
-/** Camera: authored poses only (no free orbit). Intro pull-back, aspect-aware hero, gentle mouse parallax. */
+interface Move {
+  from: Pose;
+  to: PoseKey;
+  start: number | null;
+  duration: number;
+  ease: (t: number) => number;
+}
+
+/** Camera: authored poses only (no free orbit). Intro pull-back, route-driven moves, hero parallax. */
 export function CameraRig() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const pointer = useThree((s) => s.pointer);
   const { skipRequested, introDone, setIntroDone } = useDesk();
+  const route = useRoute((s) => s.route);
+  const reduced = prefersReducedMotion();
 
-  const cfg = useRef<{ start: number | null; duration: number; from: Pose } | null>(null);
-  if (!cfg.current) {
+  const move = useRef<Move | null>(null);
+  const current = useRef<Pose>(pose([0, 0, 0], [0, 0, 0], 40));
+  if (!move.current) {
     const again = returning();
-    const skip = params.noIntro || prefersReducedMotion();
-    cfg.current = {
-      start: skip && params.introAt === null ? -Infinity : null,
+    const skipIntro = params.noIntro || reduced || useRoute.getState().deepLinked;
+    const hero = POSES.hero.wide;
+    move.current = {
+      from: again ? pose(hero.pos.clone().lerp(INTRO_POSE.pos, 0.3).toArray(), hero.look.clone().lerp(INTRO_POSE.look, 0.3).toArray(), 40) : INTRO_POSE,
+      to: poseForRoute(route),
+      start: skipIntro && params.introAt === null ? -Infinity : null,
       duration: again ? 1.0 : 3.2,
-      from: again
-        ? pose(
-            HERO_WIDE.pos.clone().lerp(INTRO.pos, 0.3).toArray(),
-            HERO_WIDE.look.clone().lerp(INTRO.look, 0.3).toArray(),
-            40,
-          )
-        : INTRO,
+      ease: inOutQuart,
     };
   }
+
+  // A route change starts a new move from wherever the camera is now.
+  const key = poseForRoute(route);
+  const lastKey = useRef(key);
+  useEffect(() => {
+    if (key === lastKey.current) return;
+    lastKey.current = key;
+    const c = current.current;
+    move.current = {
+      from: pose(c.pos.toArray(), c.look.toArray(), c.fov),
+      to: key,
+      start: null,
+      duration: reduced ? 0.25 : key === 'hero' ? 0.9 : 0.8,
+      ease: inOutCubic,
+    };
+  }, [key, reduced]);
+
   const parallax = useRef({ yaw: 0, pitch: 0 });
-  const allowParallax = !isTouch() && !prefersReducedMotion();
-  const tmp = useRef({ pos: new Vector3(), look: new Vector3(), hero: pose([0, 0, 0], [0, 0, 0], 40) });
+  const allowParallax = !isTouch() && !reduced;
+  const target = useRef(pose([0, 0, 0], [0, 0, 0], 40));
 
   useFrame((state, dt) => {
-    const c = cfg.current!;
-    if (c.start === null) c.start = state.clock.elapsedTime;
-    const elapsed = params.introAt ?? state.clock.elapsedTime - c.start;
-    const p = skipRequested ? 1 : MathUtils.clamp(elapsed / c.duration, 0, 1);
-    const e = inOutQuart(p);
+    const m = move.current!;
+    if (m.start === null) m.start = state.clock.elapsedTime;
+    const isIntro = !introDone;
+    const elapsed = isIntro && params.introAt !== null ? params.introAt : state.clock.elapsedTime - m.start;
+    const p = isIntro && skipRequested ? 1 : MathUtils.clamp(elapsed / m.duration, 0, 1);
+    const e = m.ease(p);
 
-    // Blend desktop and portrait hero poses by aspect so the key objects stay in frame.
-    const w = MathUtils.smoothstep(camera.aspect, 0.8, 1.3);
-    const { hero, pos, look } = tmp.current;
-    hero.pos.lerpVectors(HERO_PORTRAIT.pos, HERO_WIDE.pos, w);
-    hero.look.lerpVectors(HERO_PORTRAIT.look, HERO_WIDE.look, w);
-    hero.fov = MathUtils.lerp(HERO_PORTRAIT.fov, HERO_WIDE.fov, w);
+    const to = resolvePose(POSES[m.to], camera.aspect, target.current);
+    const c = current.current;
+    c.pos.lerpVectors(m.from.pos, to.pos, e);
+    c.look.lerpVectors(m.from.look, to.look, e);
+    c.fov = MathUtils.lerp(m.from.fov, to.fov, e);
 
-    pos.lerpVectors(c.from.pos, hero.pos, e);
-    look.lerpVectors(c.from.look, hero.look, e);
-    const fov = MathUtils.lerp(c.from.fov, hero.fov, e);
-
-    // Mouse parallax (hero pose only): ±1.5° yaw, ±1° pitch, lerped.
+    // Mouse parallax in the hero pose only: ±1.5° yaw, ±1° pitch, lerped.
     const px = parallax.current;
     const k = 1 - Math.exp(-dt * 3);
-    px.yaw += ((p >= 1 && allowParallax ? pointer.x * 1.5 : 0) - px.yaw) * k;
-    px.pitch += ((p >= 1 && allowParallax ? pointer.y * 1.0 : 0) - px.pitch) * k;
-    const dist = pos.distanceTo(look);
+    const on = p >= 1 && m.to === 'hero' && allowParallax;
+    px.yaw += ((on ? pointer.x * 1.5 : 0) - px.yaw) * k;
+    px.pitch += ((on ? pointer.y * 1.0 : 0) - px.pitch) * k;
+    const dist = c.pos.distanceTo(c.look);
+    look.copy(c.look);
     look.x += Math.tan(MathUtils.degToRad(px.yaw)) * dist;
     look.y += Math.tan(MathUtils.degToRad(px.pitch)) * dist;
 
-    camera.position.copy(pos);
+    camera.position.copy(c.pos);
     camera.lookAt(look);
-    if (Math.abs(camera.fov - fov) > 1e-3) {
-      camera.fov = fov;
+    if (Math.abs(camera.fov - c.fov) > 1e-3) {
+      camera.fov = c.fov;
       camera.updateProjectionMatrix();
     }
-    if (p >= 1 && !introDone) setIntroDone();
+    if (isIntro && p >= 1) setIntroDone();
   });
 
   return null;
 }
+
+const look = new Vector3();

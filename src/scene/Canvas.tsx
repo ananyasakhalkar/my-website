@@ -13,6 +13,9 @@ import { Outside } from './Outside';
 import { Desk } from './Desk';
 import { Shafts } from './Shafts';
 import { Dust } from './Dust';
+import { ProjectsFolder } from '../objects/ProjectsFolder';
+import { ReaderPapers } from '../reader/ReaderPapers';
+import { TagProjector } from '../ui/ObjectTag';
 
 /** Advances the shared wind once per frame, before anything that consumes it. */
 function WindDriver() {
@@ -53,6 +56,9 @@ export function DeskCanvas() {
       <Desk />
       <Shafts />
       <Dust />
+      <ProjectsFolder />
+      <ReaderPapers />
+      <TagProjector />
       {tierConfig.post && <Effects />}
     </Canvas>
   );

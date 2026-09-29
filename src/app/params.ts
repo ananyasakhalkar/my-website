@@ -20,4 +20,6 @@ export const params = {
   /** Start at a time of day. */
   time: q.get('time') === 'night' ? ('night' as const) : null,
   debug: q.has('debug'),
+  /** Render a single reader page for texture baking, e.g. ?bake=projects/3 */
+  bake: q.get('bake'),
 };
