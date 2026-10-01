@@ -21,7 +21,7 @@ export interface PosePair {
 
 export const POSES = {
   hero: {
-    wide: pose([0.2, 1.62, 1.62], [0.02, 0.97, -0.55], 46),
+    wide: pose([0.16, 1.66, 1.95], [0.1, 1.02, -0.6], 50),
     portrait: pose([0, 1.9, 2.2], [0, 1.2, -0.6], 64),
   },
   spill: {

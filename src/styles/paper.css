@@ -563,3 +563,34 @@
 @keyframes nb-turn-fwd { from { transform: rotateY(-175deg); } }
 @keyframes nb-turn-back { from { transform: rotateY(175deg); } }
 @media (prefers-reduced-motion: reduce) { .is-turning-fwd .nb-right, .is-turning-back .nb-left { animation: none; } }
+
+/* ---------- Shield crest (decorative, original artwork) ---------- */
+.page__crest {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 46cqh;
+  height: auto;
+  translate: -50% -50%;
+  color: var(--paper-ink);
+  opacity: 0.055;
+  pointer-events: none;
+}
+.page__crest-mini {
+  width: 1.9cqh;
+  height: auto;
+  margin-right: 0.8cqh;
+  vertical-align: -0.3cqh;
+  color: #8f2a2a;
+  opacity: 0.8;
+}
+.rc-crest {
+  position: absolute;
+  right: 6%;
+  top: 4%;
+  width: 9%;
+  height: auto;
+  color: var(--rc-navy);
+  opacity: 0.55;
+  pointer-events: none;
+}

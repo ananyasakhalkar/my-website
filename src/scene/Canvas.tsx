@@ -29,6 +29,7 @@ import { Corkboard } from '../objects/Corkboard';
 import { Lamp } from '../objects/Lamp';
 import { DayNightDriver } from './dayNight';
 import { CoffeeSpill } from '../objects/CoffeeSpill';
+import { Decor } from './Decor';
 
 /** Signals the first rendered frame (the loader finishes on it). */
 function FirstFrame({ post }: { post: boolean }) {
@@ -59,13 +60,16 @@ function FirstFrame({ post }: { post: boolean }) {
   return null;
 }
 
-/** Sustained < 20 fps for 4 s → offer (never force) the lightweight version. */
-function FpsWatch() {
+/**
+ * Sustained < 20 fps for 4 s → offer (never force) the lightweight version, but only once the automatic
+ * steps (pixel ratio, then bloom and MSAA) have been taken and it is still slow.
+ */
+function FpsWatch({ exhausted }: { exhausted: boolean }) {
   const acc = useRef({ t: 0, frames: 0, slow: 0, grace: 3 });
   useFrame((_, dt) => {
     const a = acc.current;
     // Only judge steady-state frames: after the intro, plus a few seconds' grace.
-    if (!useDesk.getState().introDone) return;
+    if (!useDesk.getState().introDone || !exhausted) return;
     if (a.grace > 0) {
       a.grace -= dt;
       return;
@@ -160,7 +164,7 @@ export function DeskCanvas() {
     >
       <WindDriver />
       <FirstFrame post={post} />
-      <FpsWatch />
+      <FpsWatch exhausted={lite} />
       <BlurThrottle />
       <PerformanceMonitor onDecline={decline} flipflops={3} />
       <DayNightDriver />
@@ -182,6 +186,7 @@ export function DeskCanvas() {
       <Notebook />
       <Corkboard />
       <Lamp />
+      <Decor />
       <CoffeeSpill />
       <TagProjector />
       {post && <Effects lite={lite} />}

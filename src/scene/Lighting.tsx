@@ -27,11 +27,11 @@ export function Lighting() {
     if (sun.current) sun.current.intensity = 6.2 * (1 - n);
     if (bounce.current) bounce.current.intensity = 1.1 * (1 - n);
     if (hemi.current) {
-      hemi.current.intensity = 1.0 - n * 0.8;
+      hemi.current.intensity = 1.12 - n * 0.8;
       hemi.current.color.lerpColors(SKY_DAY, SKY_NIGHT, n);
       hemi.current.groundColor.lerpColors(GROUND_DAY, GROUND_NIGHT, n);
     }
-    scene.environmentIntensity = 0.85 - n * 0.68;
+    scene.environmentIntensity = 0.92 - n * 0.64;
   });
 
   useEffect(() => {

@@ -6,6 +6,7 @@ import { research } from '../content/research';
 import { closeView, useRoute } from '../app/routes';
 import { useView } from '../app/viewStore';
 import { PenCircle } from './pages/ProjectPage';
+import { Crest } from './pages/Crest';
 
 function useViewport() {
   const [v, setV] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -48,6 +49,7 @@ export function ReportCardView() {
       <button type="button" className="reader__outside" aria-label="Back to desk" tabIndex={-1} onClick={closeView} />
       <div className={`rc-spread${narrow ? ' is-narrow' : ''}`} style={{ width: sw, height: sh }}>
         <section className="rc-page rc-left" aria-label="Report card, left page">
+          <Crest className="rc-crest" />
           <header className="rc-head">
             <span>Report card</span>
           </header>

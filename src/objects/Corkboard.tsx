@@ -8,6 +8,7 @@ import { useDesk } from '../app/store';
 import { WALL_Z } from '../scene/constants';
 import { cork, seeded } from '../scene/textures';
 import { wind } from '../scene/wind';
+import { nightMix } from '../scene/dayNight';
 import { HitProxy } from './HitProxy';
 import { registerTag } from '../ui/ObjectTag';
 
@@ -227,6 +228,11 @@ export function Corkboard() {
   const root = useRef<Group>(null);
   const cardRefs = useRef<Map<string, Group>>(new Map());
   const stringMats = useRef<Map<string, MeshStandardMaterial>>(new Map());
+  // Card and tag paper glows by its own texture (ink stays dark), as if under the picture light.
+  const paperMats = useRef<Set<MeshStandardMaterial>>(new Set());
+  const paper = (m: MeshStandardMaterial | null) => {
+    if (m) paperMats.current.add(m);
+  };
   useEffect(() => (root.current ? registerTag('board', 'research board →', root.current, [0.2, -0.36, 0.05]) : undefined), []);
 
   const camera = useThree((s) => s.camera);
@@ -258,6 +264,8 @@ export function Corkboard() {
       const m = stringMats.current.get(s.id);
       if (m) m.emissiveIntensity = hot === s.thread ? 1.4 : 0.15;
     }
+    const glow = 0.08 + nightMix() * 0.32;
+    for (const m of paperMats.current) m.emissiveIntensity = glow;
   });
 
   return (
@@ -285,7 +293,7 @@ export function Corkboard() {
           <group key={c.id} position={c.pos} ref={(g) => { if (g) cardRefs.current.set(c.id, g); }}>
             <mesh castShadow>
               <planeGeometry args={[size.w, size.h]} />
-              <meshStandardMaterial key={t ? 'tex' : 'none'} map={t ?? null} color={t ? '#ffffff' : '#FBF8EF'} roughness={0.9} />
+              <meshStandardMaterial ref={paper} key={t ? 'tex' : 'none'} map={t ?? null} emissiveMap={t ?? null} emissive={t ? '#ffffff' : '#000000'} color={t ? '#ffffff' : '#FBF8EF'} roughness={0.9} />
             </mesh>
             <mesh position={[c.kind === 'tool' ? size.w / 2 - 0.016 : 0, size.h / 2 - 0.012, 0.008]} castShadow>
               <sphereGeometry args={[0.0075, 12, 10]} />
@@ -308,7 +316,7 @@ export function Corkboard() {
         <group key={t.id} position={t.pos}>
           <mesh castShadow>
             <planeGeometry args={[0.062, 0.024]} />
-            <meshStandardMaterial key={textures ? 'tex' : 'none'} map={textures?.get(t.id) ?? null} color={textures ? '#ffffff' : '#F7F2E4'} roughness={0.9} />
+            <meshStandardMaterial ref={paper} key={textures ? 'tex' : 'none'} map={textures?.get(t.id) ?? null} emissiveMap={textures?.get(t.id) ?? null} emissive={textures ? '#ffffff' : '#000000'} color={textures ? '#ffffff' : '#F7F2E4'} roughness={0.9} />
           </mesh>
           <mesh position={[0, 0.012, 0.006]}>
             <sphereGeometry args={[0.0045, 10, 8]} />

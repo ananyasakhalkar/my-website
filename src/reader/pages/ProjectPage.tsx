@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { Crest } from './Crest';
 import type { Project } from '../../content/projects';
 import { projects } from '../../content/projects';
 import { publications } from '../../content/publications';
@@ -66,6 +67,7 @@ export function ProjectPage({ project, arriving = false }: { project: Project; a
           {stamp.text}
         </span>
       )}
+      <Crest className="page__crest" />
       <div className="page__inner">
         <header className="page__head">
           <b>Project {nn}</b>
@@ -110,6 +112,7 @@ export function ProjectPage({ project, arriving = false }: { project: Project; a
             {project.n} / {total} · {project.selected ? 'Selected research' : 'Systems & applied'}
           </span>
           <span className="page__mono" aria-hidden="true">
+            <Crest className="page__crest-mini" />
             A.S.
           </span>
         </footer>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Crest } from './Crest';
 import { publications, type Publication } from '../../content/publications';
 
 
@@ -30,6 +31,7 @@ export function PublicationPage({ pub, interactive = true }: { pub: Publication;
       <span className={`stamp stamp--${stamp.tone}`} aria-hidden="true">
         {stamp.text}
       </span>
+      <Crest className="page__crest" />
       <div className="page__inner">
         <header className="page__head">
           <b>[{pub.n}]</b>
@@ -77,6 +79,7 @@ export function PublicationPage({ pub, interactive = true }: { pub: Publication;
             {pub.n} / {publications.length} · Publications &amp; manuscripts
           </span>
           <span className="page__mono" aria-hidden="true">
+            <Crest className="page__crest-mini" />
             A.S.
           </span>
         </footer>

@@ -73,7 +73,7 @@ function fbm(n: ReturnType<typeof makeNoise>, x: number, y: number, octaves: num
   return v / norm;
 }
 
-function canvas(w: number, h: number) {
+export function canvas(w: number, h: number) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
@@ -99,7 +99,7 @@ function paint(w: number, h: number, fn: (x: number, y: number) => RGB): HTMLCan
   return c;
 }
 
-function toTexture(c: HTMLCanvasElement, color: boolean, repeat = true): Texture {
+export function toTexture(c: HTMLCanvasElement, color: boolean, repeat = true): Texture {
   const t = new CanvasTexture(c);
   if (color) t.colorSpace = SRGBColorSpace;
   if (repeat) t.wrapS = t.wrapT = RepeatWrapping;
