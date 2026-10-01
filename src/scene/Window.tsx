@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { CatmullRomCurve3, DoubleSide, Shape, TubeGeometry, Vector3, type Group } from 'three';
-import { FRAME_Z, SASH_OPEN, WALL_DEPTH, WALL_Z, WIN, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './constants';
+import { FRAME_Z, SASH_OPEN, WIN, WIN_X0, WIN_X1, WIN_Y0, WIN_Y1 } from './constants';
 import { wind } from './wind';
 import { seeded } from './textures';
 import { useRoute } from '../app/routes';
 import { HitProxy } from '../objects/HitProxy';
+import { PlantPot, SillBoard, SillThings } from './Sill';
 
 const FRAME = '#F2EEE6';
 const BAR = 0.022; // glazing bar width
@@ -131,14 +132,7 @@ function Plant() {
 
   return (
     <group>
-      <mesh position={[0, 0.055, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.068, 0.052, 0.11, 28]} />
-        <meshStandardMaterial color="#B5694A" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.107, 0]}>
-        <cylinderGeometry args={[0.061, 0.061, 0.006, 28]} />
-        <meshStandardMaterial color="#3B2A1E" roughness={1} />
-      </mesh>
+      <PlantPot />
       <group ref={falling} visible={false}>
         <mesh scale={0.9} castShadow>
           <shapeGeometry args={[leafShape]} />
@@ -197,10 +191,8 @@ export function Window() {
       </group>
 
       {/* Deep sill: runs through the reveal and protrudes into the room */}
-      <mesh position={[0, WIN_Y0 - 0.02, (WALL_Z - WALL_DEPTH + WALL_Z + 0.12) / 2]} castShadow receiveShadow>
-        <boxGeometry args={[WIN.width + 0.16, 0.04, WALL_DEPTH + 0.12]} />
-        <meshStandardMaterial color={FRAME} roughness={0.4} />
-      </mesh>
+      <SillBoard />
+      <SillThings />
 
       <group position={[0.36, WIN_Y0, -1.2]}>
         <Plant />

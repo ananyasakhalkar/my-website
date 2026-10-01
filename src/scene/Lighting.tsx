@@ -70,7 +70,7 @@ export function Lighting() {
       <hemisphereLight ref={hemi} args={['#C9DDF5', '#8A6448', 1.0]} />
       {/* Warm bounce from the sunlit desk and floor, aimed upward so it lifts the walls but not the desk top */}
       <directionalLight ref={bounce} position={[0.4, -1.5, 2.5]} color="#FFC08A" intensity={1.1} />
-      <Environment resolution={64} environmentIntensity={0.85}>
+      <Environment resolution={256} environmentIntensity={0.85}>
         {/* The window: bright sky, warm toward the sun side */}
         <Lightformer form="rect" intensity={2.2} color="#DCE8F6" position={[0, 1.7, -3]} scale={[3, 2, 1]} />
         <Lightformer form="rect" intensity={2.5} color="#FFD6A0" position={[-2.5, 1.2, -2.5]} scale={[2, 1.5, 1]} target={[0, 1, 0]} />
